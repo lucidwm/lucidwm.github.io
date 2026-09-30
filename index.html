@@ -1,0 +1,789 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Lucid Dreaming for World Models</title>
+<link rel="preload" as="image" href="assets/videos/teaser.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --bg: #ffffff; --ink: #1b1f24; --muted: #5e6570; --faint: #8a919b; --hair: #e3e6eb; --panel: #f3f5f8;
+    --lucid: #2b4c7e; --lucid-bright: #2f6fb5; --lucid-wash: #e7eef8; --comp: #8f8d89; --doubt: #b8781f; --alarm: #c8461e;
+    --plate: #ffffff; --plate-edge: #e3e6eb; --media-filter: none; --on-accent: #ffffff;
+    --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --sans: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+    --media: 1000px; --prose: 680px;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --bg: #0f1318; --ink: #e8eaed; --muted: #a2aab4; --faint: #7d8590; --hair: #262c34; --panel: #151a21;
+      --lucid: #93b6ea; --lucid-bright: #78a6e6; --lucid-wash: #1b2635; --comp: #8e949c; --doubt: #dba451; --alarm: #e56b45;
+      --plate: #ebebeb; --plate-edge: #2d343d; --media-filter: brightness(.92); --on-accent: #0f1318;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #0f1318; --ink: #e8eaed; --muted: #a2aab4; --faint: #7d8590; --hair: #262c34; --panel: #151a21;
+    --lucid: #93b6ea; --lucid-bright: #78a6e6; --lucid-wash: #1b2635; --comp: #8e949c; --doubt: #dba451; --alarm: #e56b45;
+    --plate: #ebebeb; --plate-edge: #2d343d; --media-filter: brightness(.92); --on-accent: #0f1318;
+  }
+
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg); color: var(--ink); font-family: var(--sans); font-size: 17px; line-height: 1.62;
+    -webkit-font-smoothing: antialiased; padding-inline: 20px; padding-block: 0 64px; overflow-x: clip;
+  }
+  .wrap { max-width: var(--media); margin-inline: auto; }
+  .prose { max-width: var(--prose); }
+  a { color: var(--lucid-bright); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:focus-visible, button:focus-visible, summary:focus-visible { outline: 2px solid var(--lucid-bright); outline-offset: 3px; border-radius: 4px; }
+  p { margin: 0 0 14px; }
+
+  /* ------------------------------------------------ hero */
+  header.hero { padding-block: 26px 18px; display: grid; gap: 8px; }
+  h1 {
+    font-family: var(--serif); font-weight: 500; font-size: clamp(34px, 5.2vw, 60px); line-height: 1.04;
+    letter-spacing: -0.015em; margin: 0; text-wrap: balance; font-variation-settings: "opsz" 72;
+  }
+  .subtitle { font-family: var(--serif); font-style: italic; font-size: clamp(18px, 2.2vw, 24px); line-height: 1.3; color: var(--muted); margin: 0; text-wrap: balance; }
+  .byline { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px 20px; margin-top: 6px; }
+  .authors { flex-basis: 100%; margin: 4px 0 6px; }
+  .authors .names { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 0; font-size: 16px; color: var(--ink); }
+  .authors .affil { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 2px; font-size: 13.5px; line-height: 1.45; color: var(--muted); }
+  .authors sup { font-size: 0.68em; line-height: 0; margin-left: 1px; }
+  .links { display: flex; flex-wrap: wrap; gap: 8px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 7px; padding: 7px 14px; border: 1px solid var(--hair); border-radius: 999px;
+    background: var(--bg); color: var(--ink); text-decoration: none; font: 500 14.5px var(--sans); cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  a.btn:hover, button.btn:hover { border-color: var(--lucid-bright); background: var(--lucid-wash); }
+  .btn.primary { background: var(--lucid); border-color: var(--lucid); color: var(--on-accent); }
+  .btn.primary:hover { background: var(--lucid-bright) !important; border-color: var(--lucid-bright) !important; }
+  .btn.static { color: var(--muted); cursor: default; }
+  .btn .soon { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .8; font-weight: 500; }
+  .btn svg { width: 15px; height: 15px; flex: none; }
+
+  /* ------------------------------------------------ teaser band: sized so title, teaser and the three results fit one screen */
+  .band { margin-inline: -20px; padding-inline: 20px; background: var(--panel); padding-block: 22px 20px; }
+  .band .inner { max-width: min(var(--media), max(620px, calc((100svh - 340px) * 1.967))); margin-inline: auto; }
+  .teaser { position: relative; }
+  .teaser .hit { position: absolute; top: 0; bottom: 0; width: 33.3%; }
+  .teaser .hit:nth-of-type(1) { left: 0; } .teaser .hit:nth-of-type(2) { left: 33.3%; } .teaser .hit:nth-of-type(3) { left: 66.6%; }
+  .teaser .hit:hover { box-shadow: inset 0 0 0 2px var(--lucid-bright); border-radius: 8px; }
+  .tri { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 12px; }
+  .tri a { text-decoration: none; color: inherit; display: block; }
+  .tri .k { font-size: 12px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+  .tri .v { font-family: var(--serif); font-size: 19.5px; line-height: 1.3; margin-top: 2px; }
+  .tri .v b { color: var(--lucid); font-weight: 500; }
+  .tri .v .cmp { color: var(--comp); }
+  .tri a:hover .v { text-decoration: underline; text-decoration-color: var(--hair); text-underline-offset: 4px; }
+  .swipe-hint { display: none; font-size: 12.5px; color: var(--muted); margin: 0 0 8px; }
+
+  /* ------------------------------------------------ media plates */
+  figure { margin: 0; }
+  .plate { background: var(--plate); border: 1px solid var(--plate-edge); border-radius: 10px; overflow: hidden; line-height: 0; }
+  .plate video, .plate img { display: block; width: 100%; height: auto; max-width: 100%; filter: var(--media-filter); }
+  video { cursor: pointer; }
+  figcaption { font-size: 14.5px; line-height: 1.55; color: var(--muted); margin-top: 12px; max-width: 820px; }
+  figcaption b { color: var(--ink); font-weight: 600; }
+
+  /* ------------------------------------------------ the claim and the evidence under it */
+  .lead { font-family: var(--serif); font-size: clamp(20px, 2.3vw, 24px); line-height: 1.42; margin: 30px 0 0; max-width: 860px; text-wrap: pretty; }
+  .lead b { font-weight: 500; color: var(--lucid); }
+  .verdict { font-size: 16.5px; line-height: 1.55; color: var(--muted); margin: 12px 0 0; max-width: 860px; }
+  .verdict b { color: var(--ink); font-weight: 600; }
+  .pairs { display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--hair); border-bottom: 1px solid var(--hair); margin-top: 26px; }
+  .pairs > .card { display: block; padding: 18px 16px 16px; text-decoration: none; color: inherit; border-left: 1px solid var(--hair); }
+  .pairs > .card:first-child { border-left: 0; padding-left: 0; }
+  .pairs .n { font-family: var(--serif); font-weight: 500; line-height: 1.05; font-variant-numeric: tabular-nums lining-nums; display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+  .pairs .ours { font-size: 38px; color: var(--lucid); }
+  .pairs .vs { font-size: 14px; color: var(--faint); font-family: var(--sans); }
+  .pairs .them { font-size: 24px; color: var(--comp); }
+  .pairs .t { font-size: 13.5px; line-height: 1.45; color: var(--muted); margin-top: 8px; }
+  .pairs .go { font-size: 12.5px; color: var(--lucid-bright); margin-top: 6px; }
+  .pairs .src { font-size: 12.5px; color: var(--faint); margin-top: 6px; }
+  .pairs > a.card:hover .go { text-decoration: underline; text-underline-offset: 3px; }
+  .aside-line { font-size: 14px; color: var(--muted); margin-top: 12px; }
+  .aside-line b { font-family: var(--serif); font-size: 18px; font-weight: 500; color: var(--lucid); }
+  @media (max-width: 860px) {
+    .pairs { grid-template-columns: repeat(2, 1fr); }
+    .pairs > .card:nth-child(2) { padding-right: 0; }
+    .pairs > .card:nth-child(3) { border-left: 0; padding-left: 0; }
+    .pairs > .card:nth-child(n+3) { border-top: 1px solid var(--hair); }
+  }
+
+  /* ------------------------------------------------ sections */
+  section { padding-top: 72px; }
+  .eyebrow { font-size: 12.5px; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); margin: 0; }
+  h2 { font-family: var(--serif); font-weight: 500; font-size: clamp(29px, 3.8vw, 40px); line-height: 1.12; letter-spacing: -0.01em; margin: 6px 0 16px; text-wrap: balance; }
+  h3 { font-family: var(--serif); font-weight: 500; font-size: 27px; line-height: 1.2; margin: 60px 0 6px; text-wrap: balance; }
+  .group-intro { color: var(--muted); font-size: 16px; }
+
+  /* method: steps as tabs over the figure */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 24px 0 18px; }
+  .step {
+    text-align: left; font: inherit; color: inherit; background: var(--bg); border: 1px solid var(--hair); border-top: 3px solid var(--hair);
+    border-radius: 6px; padding: 12px 14px 14px; cursor: pointer; transition: border-color .15s, background .15s;
+  }
+  .step:hover { border-top-color: var(--lucid-bright); }
+  .step[aria-pressed="true"] { border-top-color: var(--lucid); background: var(--lucid-wash); }
+  .step .sec { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .step .h { display: block; font-family: var(--serif); font-size: 20px; font-weight: 500; margin: 2px 0 6px; line-height: 1.25; }
+  .step .d { display: block; font-size: 14.5px; color: var(--muted); line-height: 1.5; }
+  .fig3 .plate { position: relative; }
+  .fig3 .shade { position: absolute; top: 0; bottom: 0; background: var(--plate); opacity: 0; transition: opacity .25s; pointer-events: none; }
+  .fig3 .s1 { left: 0; width: 39.5%; } .fig3 .s2 { left: 39.5%; width: 36%; } .fig3 .s3 { left: 75.5%; width: 24.5%; }
+  .fig3[data-step="1"] .shade:not(.s1), .fig3[data-step="2"] .shade:not(.s2), .fig3[data-step="3"] .shade:not(.s3) { opacity: .8; }
+  .fig3-cols { display: none; }
+  .fig3-cols figure + figure { margin-top: 18px; }
+  .fig3-cols .cap { font-size: 14px; color: var(--muted); margin-top: 8px; }
+  .fig3-cols .cap b { color: var(--ink); font-weight: 600; }
+  .reset { font: inherit; font-size: 14px; color: var(--lucid-bright); background: none; border: 0; padding: 0; margin-top: 10px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  @media (max-width: 700px) {
+    .steps { grid-template-columns: 1fr; }
+    .fig3, .reset { display: none; }
+    .fig3-cols { display: block; }
+    .fig3-cols figure:nth-child(3) .plate { max-width: 260px; }
+  }
+
+  /* videos: legend, protocol, wall */
+  .legend { display: flex; flex-wrap: wrap; gap: 8px 22px; font-size: 14px; color: var(--muted); padding: 12px 16px 0; background: var(--panel); border-radius: 8px 8px 0 0; margin: 14px 0 0; }
+  .legend span { display: inline-flex; align-items: center; gap: 8px; }
+  .legend i { display: inline-block; width: 22px; height: 3px; border-radius: 2px; }
+  .legend .sw-blue { background: var(--lucid-bright); } .legend .sw-grey { background: var(--comp); }
+  .legend .sw-red { width: 12px; height: 12px; border: 2px solid var(--alarm); border-radius: 2px; background: transparent; }
+  .legend .sw-line { height: 0; border-top: 2px dashed var(--faint); }
+  .protocol { font-size: 13.5px; line-height: 1.5; color: var(--muted); background: var(--panel); border-radius: 0 0 8px 8px; padding: 8px 16px 12px; margin: 0 0 18px; }
+  .wallbar { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 16px; margin-bottom: 12px; }
+  .wallbar p { margin: 0; font-size: 14px; color: var(--muted); }
+  .wall { display: grid; grid-template-columns: repeat(auto-fill, minmax(176px, 1fr)); gap: 14px 12px; }
+  .wall a { display: block; text-decoration: none; color: inherit; }
+  .wall .thumb { position: relative; background: var(--plate); border: 1px solid var(--plate-edge); border-radius: 8px; overflow: hidden; aspect-ratio: 4 / 3; }
+  .wall .thumb img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; filter: var(--media-filter); }
+  .wall .thumb video { position: absolute; max-width: none; filter: var(--media-filter); opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .wall .thumb video.on { opacity: 1; }
+  .wall a:hover .thumb { border-color: var(--lucid-bright); }
+  .wall .lab { font-size: 13px; line-height: 1.35; margin-top: 6px; color: var(--ink); }
+  .wall .lab b { color: var(--lucid); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+  /* videos: clips */
+  .clip { margin-top: 34px; scroll-margin-top: 20px; }
+  .clip h4 { font-family: var(--sans); font-size: 18px; font-weight: 600; margin: 0 0 4px; }
+  .clip .gist { font-size: 16px; color: var(--ink); max-width: 820px; margin: 0 0 6px; }
+  .clip details { max-width: 820px; margin: 0 0 12px; }
+  .clip summary { font-size: 13.5px; color: var(--lucid-bright); cursor: pointer; width: fit-content; }
+  .clip details p { font-size: 14.5px; color: var(--muted); margin: 8px 0 0; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 0; }
+  .chips button {
+    font: 500 13px var(--sans); color: var(--ink); background: var(--bg); border: 1px solid var(--hair); border-radius: 999px;
+    padding: 5px 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 7px;
+  }
+  .chips button i { width: 8px; height: 8px; border-radius: 50%; background: var(--lucid-bright); }
+  .chips button.key i { background: var(--alarm); }
+  .chips button:hover, .chips button[aria-pressed="true"] { border-color: var(--lucid-bright); background: var(--lucid-wash); }
+  .ctrl { display: flex; align-items: center; gap: 10px; margin-top: 8px; }
+  .ctrl button {
+    font: 500 12.5px var(--sans); color: var(--muted); background: var(--bg); border: 1px solid var(--hair); border-radius: 6px;
+    padding: 4px 9px; cursor: pointer; white-space: nowrap;
+  }
+  .ctrl button:hover { color: var(--ink); border-color: var(--lucid-bright); }
+  .ctrl button[aria-pressed="true"] { color: var(--lucid); border-color: var(--lucid); }
+  .bar { position: relative; flex: 1; height: 18px; cursor: pointer; }
+  .bar::before { content: ""; position: absolute; left: 0; right: 0; top: 8px; height: 2px; background: var(--hair); border-radius: 2px; }
+  .bar .fill { position: absolute; left: 0; top: 8px; height: 2px; width: 0; background: var(--lucid-bright); border-radius: 2px; }
+  .bar .tick { position: absolute; top: 3px; width: 2px; height: 12px; background: var(--alarm); border-radius: 1px; transform: translateX(-1px); }
+  .bar .tick::after { content: ""; position: absolute; left: -6px; right: -6px; top: -3px; bottom: -3px; }
+  .swap { margin-top: 8px; }
+  .swap button { font: inherit; font-size: 14px; color: var(--lucid-bright); background: none; border: 0; padding: 0; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+
+  dialog.lightbox { border: 0; padding: 0; background: transparent; max-width: 94vw; width: min(1400px, 94vw, calc((100dvh - 150px) * 16 / 9)); }
+  dialog.lightbox::backdrop { background: rgba(10, 13, 17, .86); }
+  html:has(dialog[open]) { overflow: hidden; }
+  dialog.lightbox .plate { border-radius: 10px; }
+  dialog.lightbox .lb-bar { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; color: #e8eaed; margin-top: 10px; }
+  dialog.lightbox .lb-text { font-size: 14.5px; line-height: 1.5; max-width: 900px; }
+  dialog.lightbox .lb-text b { display: block; font-size: 16px; }
+  dialog.lightbox .lb-text span { color: #b9c0c9; }
+  dialog.lightbox .lb-btns { display: flex; gap: 8px; flex: none; }
+  dialog.lightbox button { font: 500 13px var(--sans); color: #e8eaed; background: transparent; border: 1px solid rgba(232,234,237,.35); border-radius: 6px; padding: 5px 11px; cursor: pointer; }
+  dialog.lightbox .segs { display: flex; gap: 3px; margin-top: 10px; }
+  dialog.lightbox .segs i { height: 3px; flex: 1; background: rgba(232,234,237,.25); border-radius: 2px; }
+  dialog.lightbox .segs i.done { background: rgba(232,234,237,.7); }
+  dialog.lightbox .segs i.now { background: #78a6e6; }
+
+  /* abstract, bibtex, footer */
+  .abstract p { font-size: 16.5px; }
+  .bib { position: relative; background: var(--panel); border: 1px solid var(--hair); border-radius: 10px; }
+  .bib pre { margin: 0; padding: 20px 22px; overflow-x: auto; font-family: var(--mono); font-size: 13.5px; line-height: 1.6; color: var(--ink); }
+  .bib button { position: absolute; top: 10px; right: 10px; font: 500 13px var(--sans); color: var(--ink); background: var(--bg); border: 1px solid var(--hair); border-radius: 6px; padding: 5px 11px; cursor: pointer; }
+  .bib button:hover { border-color: var(--lucid-bright); }
+  .note { font-size: 13.5px; color: var(--faint); margin-top: 10px; }
+  footer { margin-top: 84px; padding-top: 22px; border-top: 1px solid var(--hair); font-size: 13.5px; color: var(--faint); display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+  footer a { color: var(--muted); }
+
+  /* phones */
+  @media (max-width: 640px) {
+    body { font-size: 16px; padding-inline: 16px; }
+    .band { margin-inline: -16px; padding-inline: 16px; }
+    .band .inner { max-width: none; }
+    header.hero { padding-block: 22px 14px; }
+    .btn .soon { display: none; }
+    section { padding-top: 54px; }
+    .teaser-scroll { overflow-x: auto; scroll-snap-type: x mandatory; border-radius: 10px; }
+    .teaser-scroll .plate { width: 270%; border-radius: 0; position: relative; }
+    .teaser-scroll .snap { position: absolute; top: 0; width: 33.333%; height: 1px; scroll-snap-align: start; }
+    .teaser .hit { display: none; }
+    .swipe-hint { display: block; }
+    .tri { grid-template-columns: 1fr; gap: 10px; }
+    .lead { font-size: 19px; margin-top: 22px; }
+    .pairs .ours { font-size: 32px; }
+    .wall { grid-template-columns: repeat(2, 1fr); gap: 12px 10px; } .wall .lab { font-size: 12.5px; }
+    .ctrl { flex-wrap: wrap; } .ctrl .bar { order: -1; flex-basis: 100%; }
+    dialog.lightbox .lb-bar { flex-direction: column; }
+  }
+  @media (max-width: 480px) {
+    .pairs { grid-template-columns: 1fr; }
+    .pairs > .card, .pairs > .card:nth-child(3) { border-left: 0; padding-left: 0; }
+    .pairs > .card + .card { border-top: 1px solid var(--hair); }
+  }
+  @media (pointer: coarse) {
+    .ctrl button, .chips button { min-height: 36px; padding: 6px 12px; }
+    .bar { height: 32px; } .bar::before, .bar .fill { top: 15px; }
+    .bar .tick { top: 8px; height: 16px; } .bar .tick::after { left: -12px; right: -12px; top: -8px; bottom: -8px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; } .teaser .hit { bottom: 48px; }
+    .btn, .step, .fig3 .shade, .wall .thumb video { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="top">
+  <header class="hero">
+    <h1>Lucid Dreaming for World&nbsp;Models</h1>
+    <p class="subtitle">Learning to Doubt Imagination and Decide by Trust</p>
+    <div class="byline">
+      <div class="authors">
+        <p class="names"><span>Ziqi Wen<sup>1,2</sup></span><span>Ting Xu<sup>1,2</sup></span><span>Lianyu Wang<sup>1,2</sup></span><span>Xian Lin<sup>1,2</sup></span><span>Yanda Meng<sup>3</sup></span><span>Huazhu Fu<sup>4</sup></span><span>Meng Wang<sup>1,2,&#x2709;</sup></span><span>Ching-Yu Cheng<sup>1,2,5,6</sup></span></p>
+        <ol class="affil">
+          <li><sup>1</sup>Centre for Innovation and Precision Eye Health, Yong Loo Lin School of Medicine, National University of Singapore</li>
+          <li><sup>2</sup>Department of Ophthalmology, Yong Loo Lin School of Medicine, National University of Singapore</li>
+          <li><sup>3</sup>Bioengineering Program, Biomedical Sciences Division (BioMed), King Abdullah University of Science and Technology (KAUST)</li>
+          <li><sup>4</sup>Institute of Advanced Intelligence and Computing (IAIC), Agency for Science, Technology and Research (A*STAR)</li>
+          <li><sup>5</sup>Singapore Eye Research Institute, Singapore National Eye Centre</li>
+          <li><sup>6</sup>Ophthalmology &amp; Visual Sciences Academic Clinical Program (EYE ACP), Duke-NUS Medical School</li>
+          <li><sup>&#x2709;</sup>Corresponding author</li>
+        </ol>
+      </div>
+      <nav class="links" aria-label="Paper links">
+        <a class="btn primary" href="https://arxiv.org/abs/2609.37156">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 1.75h5.5L12.5 4.75v9.5h-8.5z"/><path d="M9.5 1.75v3h3"/><path d="M6 8.5h4.5M6 11h4.5"/></svg>
+          Paper <span class="soon">arXiv 2609.37156</span></a>
+        <span class="btn static" title="The code will be released upon acceptance">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5.5 4.5 2 8l3.5 3.5M10.5 4.5 14 8l-3.5 3.5"/></svg>
+          Code <span class="soon">upon acceptance</span></span>
+        <button type="button" class="btn watch-all">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.5"/><path d="M6.75 6v4l3.5-2z" fill="currentColor" stroke="none"/></svg>
+          Watch all <span class="soon">115 s</span></button>
+        <a class="btn" href="#bibtex">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 2.5h7.5a2 2 0 0 1 2 2v9H5a2 2 0 0 1-2-2z"/><path d="M5.5 5.5h4.5M5.5 8h3"/></svg>
+          BibTeX</a>
+      </nav>
+    </div>
+  </header>
+</div>
+
+<div class="band">
+  <div class="inner">
+    <p class="swipe-hint">Swipe for the three examples &rarr;</p>
+    <div class="teaser">
+      <div class="teaser-scroll">
+        <div class="plate" style="position: relative">
+          <video id="teaser" src="assets/videos/teaser.mp4" poster="assets/videos/teaser.jpg" width="960" height="488" muted loop playsinline autoplay preload="auto" aria-label="Three examples: an alarm before a fall, an alarm in a room sealed during training, and a veto that turns the agent back"></video>
+          <span class="snap" style="left: 0"></span><span class="snap" style="left: 33.333%"></span><span class="snap" style="left: 66.666%"></span>
+        </div>
+      </div>
+      <a class="hit" href="#clip-falls20" aria-label="Go to the falls"></a>
+      <a class="hit" href="#clip-walkin" aria-label="Go to the opened room"></a>
+      <a class="hit" href="#clip-veto" aria-label="Go to the veto"></a>
+    </div>
+    <div class="tri">
+      <a href="#clip-falls20"><div class="k">Before the fall</div><div class="v"><b>20 of 20</b> falls alarmed before onset; <span class="cmp">entropy, 0 of 20</span></div></a>
+      <a href="#clip-walkin"><div class="k">A room sealed in training</div><div class="v"><b>25 of 29</b> walks alarmed; <span class="cmp">base, 0 of 29</span></div></a>
+      <a href="#clip-veto"><div class="k">Acting on trust, one run</div><div class="v">Goal at step <b>190</b>; <span class="cmp">ignoring doubt, 362</span></div></a>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <p class="lead">A readout taken off a world model's prediction reports confidence exactly where the model has no experience. <b>LucidWM</b> learns doubt from experience, carries it as trust through imagination, and acts on it.</p>
+  <p class="verdict">Against <b>seventeen uncertainty readouts</b> on <b>four world-model bases</b>, LucidWM ranks <b>first on every base</b> after observation and <b>first on all 16 rows</b> before a decision, with no additional parameters or forward passes for uncertainty estimation.</p>
+
+  <div class="pairs">
+    <a class="card" href="#clip-twenty_forwards"><div class="n"><span class="ours">&gt;3&times;</span><span class="vs">vs</span><span class="them">&lt;1&times;</span></div><div class="t">with every imagined action corrupted on EMERALD, the doubt rises over threefold from one pass, where MC dropout, Laplace and a snapshot ensemble, at up to twenty passes, fall instead</div><div class="go">See one pass against twenty &rarr;</div></a>
+    <a class="card" href="#clip-ensemble"><div class="n"><span class="ours">8/10</span><span class="vs">vs</span><span class="them">0/10</span></div><div class="t">further walks through the opened door alarmed by one forward pass, against the deep and self-ensembles and the entropy</div><div class="go">See the walks &rarr;</div></a>
+    <div class="card"><div class="n"><span class="ours">28/28</span><span class="vs">vs</span><span class="them">4/28</span></div><div class="t">alarm-line rules, four placements by seven durations, under which the repainted room raises the alarm</div><div class="src">Robustness, in the paper's appendix</div></div>
+    <a class="card" href="#clip-veto"><div class="n"><span class="ours">143/145</span></div><div class="t">vetoes that fired inside a changed room, though the agent is never told where the changes are</div><div class="go">See the veto &rarr;</div></a>
+  </div>
+  <p class="aside-line">Across <b>38</b> training checkpoints, from 0.1M to 3.8M frames, the doubt ranks the opened room above familiar frames at every one; the base's readout ranks it below chance at every one.</p>
+
+  <section id="idea">
+    <p class="eyebrow">The problem</p>
+    <h2>Same prediction, different experience</h2>
+    <div class="prose">
+      <p>A state and an action may each be familiar while their combination is unsupported by observed transitions. The model can still produce a sharp prediction, so a readout of predictive spread may report confidence despite limited evidence for that transition. As a lucid dreamer knows a dream from waking life, LucidWM distinguishes what it predicts from the evidence supporting that prediction.</p>
+    </div>
+    <figure style="margin-top: 20px">
+      <div class="plate" style="max-width: 760px"><img src="assets/figs/fig2_mechanism_v55.png" width="2263" height="1575" loading="lazy" alt="A scene and an action never experienced together are predicted as sharply as a pair that was; the Dirichlet strength and doubt read by LucidWM separate the two, while the entropy of the output cannot."></div>
+      <figcaption><b>Same prediction, different experience.</b> Top: a scene and an action never experienced together are predicted as sharply as a pair that was (real frames: at a fall's onset, and 30 steps before it). Bottom: ours reads the Dirichlet behind the input, whose strength and doubt separate the two; the entropy of the output cannot. Bars: each readout over its own alarm line.</figcaption>
+    </figure>
+  </section>
+
+  <section id="method">
+    <p class="eyebrow">Method</p>
+    <h2>Doubt is learned from experience and carried as trust</h2>
+    <p class="prose">The transition-head logits parameterise a Dirichlet over the next-state probabilities. Its mean gives the prediction, its concentration above the prior represents learned evidential strength, and the prior's share of the total concentration defines the step's doubt. A standard world model is the special case with doubt and trust pinned to constants.</p>
+    <div class="steps" role="group" aria-label="Method steps; select one to highlight it in the figure">
+      <button type="button" class="step" data-step="1" aria-pressed="false"><span class="sec">Sec. 3.1</span><span class="h">Learning doubt from experience</span><span class="d">The categorical transition head is formulated as a Subjective Logic opinion, and the posterior is updated by fusing evidence from observation.</span></button>
+      <button type="button" class="step" data-step="2" aria-pressed="false"><span class="sec">Sec. 3.2</span><span class="h">Carrying trust through imagination</span><span class="d">Trust is incorporated into the standard &lambda; return, reducing reliance on uncertain imagined continuations.</span></button>
+      <button type="button" class="step" data-step="3" aria-pressed="false"><span class="sec">Sec. 3.3</span><span class="h">Deciding by trust</span><span class="d">Candidate futures are scored by trust; a course whose trust collapses is vetoed and the agent chooses again.</span></button>
+    </div>
+    <figure>
+      <div class="fig3" id="fig3" data-step="0">
+        <div class="plate"><img src="assets/figs/fig3_method_tworow.png" width="2400" height="1340" loading="lazy" alt="Top row: a standard world model with world-model learning, actor-critic learning in imagination, and acting. Bottom row: LucidWM, which learns doubt from experience, carries trust through imagination, and decides by trust."><span class="shade s1"></span><span class="shade s2"></span><span class="shade s3"></span></div>
+      </div>
+      <button type="button" class="reset" id="fig3-reset" hidden>Show the whole figure</button>
+      <div class="fig3-cols">
+        <figure><div class="plate"><img src="assets/figs/fig3_col1.png" width="948" height="1340" loading="lazy" alt="Step 1 of the method figure"></div><p class="cap"><b>1) Learning doubt from experience.</b> Top: standard; bottom: LucidWM.</p></figure>
+        <figure><div class="plate"><img src="assets/figs/fig3_col2.png" width="866" height="1340" loading="lazy" alt="Step 2 of the method figure"></div><p class="cap"><b>2) Carrying trust through imagination.</b> Top: standard; bottom: LucidWM.</p></figure>
+        <figure><div class="plate"><img src="assets/figs/fig3_col3.png" width="588" height="1340" loading="lazy" alt="Step 3 of the method figure"></div><p class="cap"><b>3) Deciding by trust.</b> Top: standard; bottom: LucidWM.</p></figure>
+      </div>
+      <figcaption><b>(a) A standard world model; (b) LucidWM.</b> Changes in grey and blue, doubt in orange. One rule is applied three times: keep the share of a prediction that experience supports, and hand the rest to a fallback, the uniform distribution, the critic, or zero.</figcaption>
+    </figure>
+  </section>
+
+  <section id="videos">
+    <p class="eyebrow">Videos</p>
+    <h2>The model doubting its dreams, and acting on it</h2>
+    <div class="legend" aria-label="How to read the videos">
+      <span><i class="sw-blue"></i>LucidWM</span>
+      <span><i class="sw-grey"></i>the comparison named in each caption</span>
+      <span><i class="sw-line"></i>alarm line, one per curve</span>
+      <span><i class="sw-red"></i>alarm: the doubt has held above its line for three steps</span>
+    </div>
+    <p class="protocol">Every readout is read on the same frames and imagined futures and set against its own alarm line, taken on familiar frames of the same run. Maze walks are scripted routes that read the agent's position only, never the model. <em>Base</em> is the same readout on the unmodified model; in the veto clip, the same agent ignoring doubt.</p>
+    <div class="wallbar"><p>Fourteen clips; hover or tap one to jump to it.</p><button type="button" class="btn watch-all">Watch all fourteen <span class="soon">115 s</span></button></div>
+    <div class="wall" id="wall">
+      <a href="#clip-veto" data-v="veto" data-crop="0,0.11,0.76,0.59"><div class="thumb"><img src="assets/crops/veto.jpg" alt="" loading="lazy"></div><div class="lab">One veto, <b>190</b> vs 362 steps</div></a>
+      
+      <a href="#clip-fall" data-v="fall" data-crop="0.02,0.07,0.42,0.79"><div class="thumb"><img src="assets/crops/fall.jpg" alt="" loading="lazy"></div><div class="lab">One fall, <b>8 steps</b> ahead</div></a>
+      <a href="#clip-falls20" data-v="falls20" data-crop="0.01,0.03,0.65,0.93"><div class="thumb"><img src="assets/crops/falls20.jpg" alt="" loading="lazy"></div><div class="lab">Twenty falls, <b>20/20</b></div></a>
+      <a href="#clip-repaint" data-v="repaint" data-crop="0.02,0.07,0.42,0.79"><div class="thumb"><img src="assets/crops/repaint.jpg" alt="" loading="lazy"></div><div class="lab">The repainted room</div></a>
+      <a href="#clip-newroom" data-v="newroom" data-crop="0.02,0.07,0.42,0.79"><div class="thumb"><img src="assets/crops/newroom.jpg" alt="" loading="lazy"></div><div class="lab">The opened room</div></a>
+      <a href="#clip-walkin" data-v="walkin" data-crop="0.02,0.07,0.42,0.79"><div class="thumb"><img src="assets/crops/walkin.jpg" alt="" loading="lazy"></div><div class="lab">Walking in, <b>25/29</b></div></a>
+      <a href="#clip-ensemble" data-v="ensemble" data-crop="0.01,0.02,0.58,0.40"><div class="thumb"><img src="assets/crops/ensemble.jpg" alt="" loading="lazy"></div><div class="lab">One pass vs ensembles, <b>8/10</b></div></a>
+      <a href="#clip-fourbases" data-v="fourbases" data-crop="0,0,1,1"><div class="thumb"><img src="assets/crops/fourbases.jpg" alt="" loading="lazy"></div><div class="lab">Four bases, one walk each</div></a>
+      <a href="#clip-crafter_night" data-v="crafter_night" data-crop="0.02,0.07,0.42,0.79"><div class="thumb"><img src="assets/crops/crafter_night.jpg" alt="" loading="lazy"></div><div class="lab">Nightfall, <b>2.6&times;</b> its line</div></a>
+      <a href="#clip-twenty_forwards" data-v="twenty_forwards" data-crop="0,0,1,1"><div class="thumb"><img src="assets/crops/twenty_forwards.jpg" alt="" loading="lazy"></div><div class="lab">EMERALD: one pass vs twenty</div></a>
+      <a href="#clip-corrupted" data-v="corrupted" data-crop="0,0,1,1"><div class="thumb"><img src="assets/crops/corrupted.jpg" alt="" loading="lazy"></div><div class="lab">OC-STORM: <b>over 5&times;</b> on walker</div></a>
+      <a href="#clip-leaving" data-v="leaving" data-crop="0,0,1,1"><div class="thumb"><img src="assets/crops/leaving.jpg" alt="" loading="lazy"></div><div class="lab">Leaving experience, <b>9 in 10</b></div></a>
+      <a href="#clip-dreams" data-v="dreams" data-crop="0,0,1,0.55"><div class="thumb"><img src="assets/crops/dreams.jpg" alt="" loading="lazy"></div><div class="lab">Dream and reality, trust <b>0.16</b> vs 0.42</div></a>
+      <a href="#clip-learning" data-v="learning" data-crop="0,0,1,1"><div class="thumb"><img src="assets/crops/learning.jpg" alt="" loading="lazy"></div><div class="lab">Learning, <b>6 of 6</b> checkpoints</div></a>
+    </div>
+
+    <h3>Acting on trust</h3>
+    <article class="clip" id="clip-veto">
+      <h4>One veto, half the steps</h4>
+      <p class="gist">The same weights and seed, twice through a dead end repainted after training (sand). Left, <em>base</em> ignores its doubt; right, <em>ours</em> acts on trust. At step 24 the veto fires: ours turns and reaches the armour at step 190, while base circles the room until step 262 and arrives at step 362.</p>
+      <details><summary>Details</summary><p>Every wall is where it was, so a policy that learned the map walks in as before. The entropy of base crosses its line for a single frame in the whole walk, so the same rule would never have fired. On both altered maps, 143 of 145 vetoes fired inside a changed room, though the agent is never told where the changes are.</p></details>
+      <div class="player" data-key="4.50"><div class="plate"><video id="veto" src="assets/videos/veto.mp4" data-poster="assets/videos/veto.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+      <div class="chips" id="veto-chips" aria-label="Moments in the walk">
+        <button type="button" data-t="1.02"><i></i>Start: one agent</button>
+        <button type="button" data-t="4.52" class="key"><i></i>The veto, step 24</button>
+        <button type="button" data-t="14.77"><i></i>Ours arrives, step 190</button>
+        <button type="button" data-t="19.10"><i></i>Base leaves, step 262</button>
+      </div>
+    </article>
+
+    <h3>Before the fall</h3>
+    <p class="prose group-intro">The doubt is read from the same head that generates the model's imagination, with no added parameter; the usual readout, the entropy of the prediction, is the comparison.</p>
+    <article class="clip" id="clip-fall">
+      <h4>Eight steps ahead of the fall</h4>
+      <p class="gist">The model reports its doubt eight steps before the fall and stays above its alarm line throughout it; the entropy of the same prediction raises no alarm.</p>
+      <div class="player"><div class="plate"><video src="assets/videos/fall.mp4" data-poster="assets/videos/fall.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-falls20">
+      <h4>Twenty falls, twenty alarms</h4>
+      <p class="gist">The doubt warns of each of twenty consecutive cheetah falls before it begins, its alarm a median of four steps ahead, while the entropy of the same prediction raises none. Each fall is aligned at its onset; a tile turns red when its alarm is raised.</p>
+      <div class="player" data-key="2.60"><div class="plate"><video src="assets/videos/falls20.mp4" data-poster="assets/videos/falls20.jpg" width="960" height="530" muted loop playsinline preload="none"></video></div></div>
+    </article>
+
+    <h3>After observation: the world has changed</h3>
+    <p class="prose group-intro">After training, the walls of one room are repainted, which changes every pixel and nothing else, and a wall is opened onto a room that was sealed off, which changes only the layout. LucidWM raises an alarm in both rooms, and the base in neither.</p>
+    <article class="clip" id="clip-repaint">
+      <h4>Every pixel changed</h4>
+      <p class="gist">Inside the repainted room the doubt of LucidWM rises far above its alarm line; the base raises no alarm (inset: the room at training time).</p>
+      <div class="player" data-key="2.25"><div class="plate"><video src="assets/videos/repaint.mp4" data-poster="assets/videos/repaint.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-newroom">
+      <h4>Only the layout changed</h4>
+      <p class="gist">Every frame in the opened room is made of familiar walls, yet the doubt rises while the opening is in view; the base raises no alarm.</p>
+      <details><summary>Details</summary><p>We replay the same actions on the training map and read the difference. The doubt reads the structure beneath the pixels.</p></details>
+      <div class="player" data-key="3.14"><div class="plate"><video src="assets/videos/newroom.mp4" data-poster="assets/videos/newroom.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-walkin">
+      <h4>Into the new room, and into it again</h4>
+      <p class="gist">The doubt peaks each time the agent walks in. Over 29 walks it raises its alarm inside the room on 25, and the base on none.</p>
+      <details><summary>Details</summary><p>The doubt drops back below its line between the two entries shown. Steps outside the room play five times faster.</p></details>
+      <div class="player" data-key="2.48"><div class="plate"><video src="assets/videos/walkin.mp4" data-poster="assets/videos/walkin.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-ensemble">
+      <h4>One pass against three models</h4>
+      <p class="gist">On ten further walks through the door, one forward pass raises its alarm on eight; the deep and self-ensembles and the entropy on none.</p>
+      <details><summary>Details</summary><p>At the cost of one forward pass the doubt ranks the new room above the maze, while the base's latent and deep ensembles, at up to three times the cost, read it as more familiar.</p></details>
+      <div class="player" data-key="4.68"><div class="plate"><video src="assets/videos/ensemble.mp4" data-poster="assets/videos/ensemble.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-fourbases">
+      <h4>Four bases, four alarms</h4>
+      <p class="gist">On all four bases the doubt crosses its line at the new room. DreamerV3, R2-Dreamer, EMERALD and OC-STORM span recurrent and transformer dynamics, reconstruction-based and reconstruction-free representations, and flat and spatial latent states.</p>
+      <div class="player" data-key="2.48"><div class="plate"><video src="assets/videos/fourbases.mp4" data-poster="assets/videos/fourbases.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-crafter_night">
+      <h4>Nightfall in Crafter</h4>
+      <p class="gist">Nightfall darkens Crafter step by step. Within twenty-five steps the doubt climbs over its line and peaks above twice it, while the base's readout never reaches half of its own.</p>
+      <div class="player" data-key="4.50"><div class="plate"><video src="assets/videos/crafter_night.mp4" data-poster="assets/videos/crafter_night.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+
+    <h3>Before a decision: the dream has drifted</h3>
+    <p class="prose group-intro">Imagination starts from real states, and the question is whether the doubt read before a decision tells that an imagined future has left the model's experience. With the actions fed to imagination corrupted, the LucidWM readout rises and leads on every row, while the same formula on the unmodified base mostly falls or stays flat: fed nonsense, a model without doubt grows more confident.</p>
+    <article class="clip" id="clip-twenty_forwards">
+      <h4>One pass against twenty</h4>
+      <p class="gist">On EMERALD walker and cheetah, with every imagined action corrupted, the doubt rises over threefold from one pass, where MC dropout, Laplace and a snapshot ensemble, at up to twenty passes, fall instead.</p>
+      <details><summary>Details</summary><p>Each curve is the <em>lift</em>, the readout under corrupted actions over the readout under the true ones, so 1 is no response.</p></details>
+      <div class="player"><div class="plate"><video src="assets/videos/twenty_forwards.mp4" data-poster="assets/videos/twenty_forwards.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-corrupted">
+      <h4>The worse the actions, the higher the doubt</h4>
+      <p class="gist">On OC-STORM, as more imagined actions are corrupted, the median doubt rises over fivefold on walker and over twofold on Crafter, while the base's readout barely moves.</p>
+      <details><summary>Details</summary><p>The actions fed to imagination are replaced by random ones with a growing probability, from 0 to 1 along the axis; each curve is the lift, so 1 is no response. The small frames are decoded imagination.</p></details>
+      <div class="player" data-key="1.04"><div class="plate"><video src="assets/videos/corrupted.mp4" data-poster="assets/videos/corrupted.jpg" width="960" height="440" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-leaving">
+      <h4>Leaving the experienced states</h4>
+      <p class="gist">Rollouts of both models drift equally far out of the experienced states. Within ten steps the median doubt of LucidWM crosses the 95th percentile of experienced states, and by the end nine in ten sit above it; the base's doubt never moves.</p>
+      <details><summary>Details</summary><p>Forty-eight random-action rollouts from real states, forty steps each (grey cloud: experienced states); a rollout turns red while its doubt is above the line.</p></details>
+      <div class="player" data-key="2.10"><div class="plate"><video src="assets/videos/leaving.mp4" data-poster="assets/videos/leaving.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+    <article class="clip" id="clip-dreams">
+      <h4>Imagination beside the world</h4>
+      <p class="gist">One action sequence drives both the world and the model's imagination. On Crafter, lava appears in the real world from the second step and never in the dream, and the trust of this rollout drains far faster than that of rollouts started in calm scenes: 0.16 against 0.42 at step 6.</p>
+      <details><summary>Details</summary><p>Left: the imagined walker falls while the real one keeps walking. Right: the trust of this rollout against the median over thirty calm starts.</p></details>
+      <div class="player" data-key="2.72"><div class="plate"><video src="assets/videos/dreams.mp4" data-poster="assets/videos/dreams.jpg" width="960" height="460" muted loop playsinline preload="none"></video></div></div>
+    </article>
+
+    <h3>Doubt falls as experience grows</h3>
+    <article class="clip" id="clip-learning">
+      <h4>Learning more, doubting less</h4>
+      <p class="gist">The same future imagined at six checkpoints of one run, from 48k to 180k steps. Averaged over the 24 imagined steps, the doubt falls at every checkpoint, to about half, and the error falls with it, to about a quarter, while the entropy of the same prediction ends nearly 30% higher.</p>
+      <details><summary>Details</summary><p>At every checkpoint the imagined future is compared with what happened: the error from pixels, the doubt from the transition's evidence alone. At one step the doubt halves and the error falls nearly 25-fold. Past the chaotic horizon the doubt stays the highest of the steps shown at every checkpoint.</p></details>
+      <div class="player"><div class="plate"><video src="assets/videos/learning.mp4" data-poster="assets/videos/learning.jpg" width="960" height="540" muted loop playsinline preload="none"></video></div></div>
+    </article>
+  </section>
+
+  <section id="abstract" class="abstract">
+    <p class="eyebrow">Abstract</p>
+    <div class="prose">
+      <p>World models enable agents to learn and plan in imagination, but predictions beyond their experience can become unreliable and mislead decisions. Existing uncertainty estimates derived from predictions can remain overconfident on unfamiliar state-action pairs. We propose the Lucid World Model (LucidWM), which learns doubt from experience and propagates trust through imagination. By integrating Subjective Logic into categorical latent transitions, LucidWM distinguishes predicted outcomes from their evidential support and assigns each transition a degree of doubt. The complement of this doubt defines transition-level trust, which accumulates multiplicatively along imagined trajectories to reweight returns for policy learning and guide action selection. Uncertainty estimation requires no additional parameters or forward passes. Evaluated on four base world models against seventeen uncertainty readouts, LucidWM detects environmental changes and signals uncertainty during action-corrupted rollouts.</p>
+      <p>In a controlled navigation case study, acting on trust reduces the number of steps required to reach the goal from 362 to 190. Fifteen demonstration videos show how LucidWM doubts its dreams and acts on that doubt.</p>
+    </div>
+  </section>
+
+  <section id="bibtex">
+    <p class="eyebrow">Citation</p>
+    <h2>BibTeX</h2>
+    <div class="bib">
+      <button type="button" id="copy-bib">Copy</button>
+      <pre id="bib-text">@article{lucidwm2026,
+  title   = {Lucid Dreaming for World Models: Learning to Doubt
+             Imagination and Decide by Trust},
+  author  = {Wen, Ziqi and Xu, Ting and Wang, Lianyu and Lin, Xian and
+             Meng, Yanda and Fu, Huazhu and Wang, Meng and Cheng, Ching-Yu},
+  journal = {arXiv preprint arXiv:2609.37156},
+  year    = {2026}
+}</pre>
+    </div>
+    <p class="note">The entry will be completed with the authors and the arXiv identifier once the paper is posted.</p>
+  </section>
+
+  <footer>
+    <span>Lucid Dreaming for World Models</span>
+    <a href="#top">Back to top</a>
+  </footer>
+</div>
+
+<dialog class="lightbox" id="lightbox" aria-label="Video">
+  <div class="plate"><video id="lb-video" muted playsinline controls></video></div>
+  <div class="segs" id="lb-segs"></div>
+  <div class="lb-bar">
+    <div class="lb-text" id="lb-text"></div>
+    <div class="lb-btns"><button type="button" id="lb-prev">Previous</button><button type="button" id="lb-next">Next</button><button type="button" id="lb-close">Close</button></div>
+  </div>
+</dialog>
+
+<script>
+  (function () {
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var coarse = window.matchMedia && window.matchMedia('(pointer: coarse)').matches;
+    var saveData = navigator.connection && navigator.connection.saveData;
+    var DUR = { fall: 6.20, falls20: 5.20, repaint: 6.22, newroom: 8.76, walkin: 10.30, ensemble: 7.74, fourbases: 7.58,
+                crafter_night: 7.70, leaving: 7.58, corrupted: 6.11, twenty_forwards: 6.60, dreams: 5.45, learning: 3.85,
+                veto: 25.82 };
+    function play(v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); }
+    function nameOf(v) { var m = (v.getAttribute('src') || '').match(/([a-z_0-9]+)\.mp4$/); return m ? m[1] : ''; }
+    function fullscreen(v) {
+      try {
+        if (v.requestFullscreen) {
+          v.requestFullscreen().then(function () {
+            if (screen.orientation && screen.orientation.lock) screen.orientation.lock('landscape').catch(function () {});
+          }).catch(function () {});
+        } else if (v.webkitEnterFullscreen) { v.webkitEnterFullscreen(); }
+      } catch (e) {}
+    }
+
+    /* ---------- teaser */
+    var teaser = document.getElementById('teaser');
+    if (reduce) { teaser.removeAttribute('autoplay'); teaser.controls = true; teaser.pause(); }
+
+    /* ---------- lightbox: one clip enlarged, or all fifteen in a row */
+    var lb = document.getElementById('lightbox'), lbv = document.getElementById('lb-video'), lbText = document.getElementById('lb-text'),
+        lbSegs = document.getElementById('lb-segs'), lbPrev = document.getElementById('lb-prev'), lbNext = document.getElementById('lb-next');
+    var lbFrom = null, list = null, idx = 0;
+    function clipText(el) {
+      var h = el.querySelector('h4'), g = el.querySelector('.gist');
+      return '<b>' + (h ? h.textContent : '') + '</b><span>' + (g ? g.textContent : '') + '</span>';
+    }
+    function showPlaylist(i) {
+      idx = (i + list.length) % list.length;
+      var el = document.getElementById(list[idx]), v = el.querySelector('video');
+      lbv.loop = false; lbv.src = v.getAttribute('src'); lbv.poster = v.dataset.poster || '';
+      lbText.innerHTML = clipText(el);
+      Array.prototype.forEach.call(lbSegs.children, function (s, k) { s.className = k < idx ? 'done' : (k === idx ? 'now' : ''); });
+      play(lbv);
+    }
+    function openPlaylist() {
+      if (!lb.showModal) { location.hash = '#clip-veto'; return; }
+      list = Array.prototype.map.call(document.querySelectorAll('#wall a:not([data-full])'), function (a) { return a.getAttribute('href').slice(1); });
+      lbSegs.innerHTML = list.map(function (id) {
+        var n = document.getElementById(id).querySelector('video'); return '<i style="flex:' + (DUR[nameOf(n)] || 6) + '"></i>';
+      }).join('');
+      lbSegs.hidden = false; lbPrev.hidden = false; lbNext.hidden = false;
+      document.querySelectorAll('.player video').forEach(function (v) { v.pause(); });
+      teaser.pause();
+      lb.showModal(); showPlaylist(0);
+    }
+    lbv.addEventListener('ended', function () { if (list) { if (idx < list.length - 1) showPlaylist(idx + 1); } });
+    lbPrev.addEventListener('click', function () { if (list) showPlaylist(idx - 1); });
+    lbNext.addEventListener('click', function () { if (list) showPlaylist(idx + 1); });
+    lb.addEventListener('keydown', function (e) {
+      if (!list) return;
+      if (e.key === 'ArrowRight') { showPlaylist(idx + 1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { showPlaylist(idx - 1); e.preventDefault(); }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('.watch-all'), function (b) { b.addEventListener('click', openPlaylist); });
+    document.getElementById('lb-close').addEventListener('click', function () { lb.close(); });
+    lb.addEventListener('click', function (e) { if (e.target === lb) lb.close(); });
+    lb.addEventListener('close', function () {
+      if (lbFrom) { lbFrom.currentTime = lbv.currentTime || 0; if (!reduce && lbFrom.dataset.user !== 'paused') play(lbFrom); lbFrom = null; }
+      list = null; lbv.pause(); lbv.removeAttribute('src'); lbv.load();
+      if (!reduce) play(teaser);
+    });
+
+    /* ---------- players: progress bar, key-moment tick, replay, half speed, enlarge */
+    var players = Array.prototype.slice.call(document.querySelectorAll('.player'));
+    players.forEach(function (pl) {
+      var v = pl.querySelector('video'), clip = pl.closest('.clip');
+      var ctrl = document.createElement('div'); ctrl.className = 'ctrl';
+      ctrl.innerHTML = '<button type="button" class="pp">Play</button><button type="button" class="rp">Replay</button>' +
+        '<button type="button" class="slow" aria-pressed="false">0.5&times;</button>' +
+        '<div class="bar" role="slider" aria-label="Seek" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" tabindex="0"><span class="fill"></span></div>' +
+        '<button type="button" class="big">' + (coarse ? 'Full screen' : 'Enlarge') + '</button>';
+      pl.appendChild(ctrl);
+      var pp = ctrl.querySelector('.pp'), rp = ctrl.querySelector('.rp'), slow = ctrl.querySelector('.slow'),
+          bar = ctrl.querySelector('.bar'), fill = ctrl.querySelector('.fill'), big = ctrl.querySelector('.big');
+      var key = parseFloat(pl.getAttribute('data-key')), tick = null;
+      if (!isNaN(key)) { tick = document.createElement('span'); tick.className = 'tick'; tick.title = 'Key moment'; bar.appendChild(tick); }
+      function placeTick() { var d = v.duration || DUR[nameOf(v)]; if (tick && d) tick.style.left = (100 * key / d) + '%'; }
+      placeTick(); v.addEventListener('loadedmetadata', placeTick); v._placeTick = placeTick;
+      function sync() { pp.textContent = v.paused ? 'Play' : 'Pause'; }
+      function draw() { if (v.duration) { var f = 100 * v.currentTime / v.duration; fill.style.width = f + '%'; bar.setAttribute('aria-valuenow', Math.round(f)); } }
+      var raf = 0;
+      function frame() { draw(); raf = v.paused ? 0 : requestAnimationFrame(frame); }
+      v.addEventListener('play', function () { sync(); if (!raf) raf = requestAnimationFrame(frame); });
+      v.addEventListener('pause', sync);
+      v.addEventListener('seeked', draw);
+      v._userPause = function () { v.dataset.user = 'paused'; v.pause(); };
+      function userPlay() { delete v.dataset.user; play(v); }
+      pp.addEventListener('click', function () { v.paused ? userPlay() : v._userPause(); });
+      rp.addEventListener('click', function () { v.currentTime = 0; userPlay(); });
+      slow.addEventListener('click', function () {
+        var on = v.playbackRate !== 0.5; v.defaultPlaybackRate = v.playbackRate = on ? 0.5 : 1; slow.setAttribute('aria-pressed', String(on));
+      });
+      bar.addEventListener('click', function (e) {
+        var d = v.duration; if (!d) return;
+        if (tick && e.target === tick) { v.currentTime = key; v._userPause(); return; }
+        var r = bar.getBoundingClientRect(); v.currentTime = Math.max(0, Math.min(1, (e.clientX - r.left) / r.width)) * d;
+      });
+      bar.addEventListener('keydown', function (e) {
+        if (!v.duration) return;
+        if (e.key === 'ArrowRight') { v.currentTime = Math.min(v.duration, v.currentTime + 0.5); e.preventDefault(); }
+        if (e.key === 'ArrowLeft') { v.currentTime = Math.max(0, v.currentTime - 0.5); e.preventDefault(); }
+      });
+      v.addEventListener('click', function () { if (coarse) { fullscreen(v); return; } v.paused ? userPlay() : v._userPause(); });
+      big.addEventListener('click', function () {
+        if (coarse || !lb.showModal) { fullscreen(v); return; }
+        list = null; lbSegs.hidden = true; lbPrev.hidden = true; lbNext.hidden = true;
+        lbFrom = v; lbv.loop = true; lbv.defaultPlaybackRate = lbv.playbackRate = v.playbackRate;
+        lbv.src = v.getAttribute('src'); lbv.poster = v.poster || v.dataset.poster || '';
+        var t = v.currentTime; lbv.addEventListener('loadedmetadata', function once() { lbv.currentTime = t; lbv.removeEventListener('loadedmetadata', once); });
+        lbText.innerHTML = clip ? clipText(clip) : '';
+        v.pause(); lb.showModal(); play(lbv);
+      });
+      if (reduce) { v.loop = false; }
+      sync();
+    });
+
+    /* ---------- posters and metadata load only when a clip comes near */
+    var vids = players.map(function (pl) { return pl.querySelector('video'); });
+    if ('IntersectionObserver' in window) {
+      var near = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          if (!e.isIntersecting) return;
+          var v = e.target;
+          if (v.dataset.poster && !v.poster) v.poster = v.dataset.poster;
+          if (v.preload === 'none') v.preload = 'metadata';
+          near.unobserve(v);
+        });
+      }, { rootMargin: '800px 0px' });
+      vids.forEach(function (v) { near.observe(v); });
+    } else {
+      vids.forEach(function (v) { if (v.dataset.poster) v.poster = v.dataset.poster; });
+    }
+
+    /* ---------- play what is on screen; respect a pause chosen by the reader */
+    if (!reduce && 'IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          var v = e.target;
+          if (lb.open) return;
+          if (e.isIntersecting) {
+            if (v.dataset.restart) { v.currentTime = 0; delete v.dataset.restart; }
+            if (v.preload !== 'auto') v.preload = 'auto';
+            if (v.dataset.user !== 'paused') play(v);
+          } else { v.pause(); }
+        });
+      }, { threshold: 0.35 });
+      vids.concat([teaser]).forEach(function (v) { io.observe(v); });
+    }
+
+    /* ---------- veto: moments in the walk, and the whole walk */
+    var veto = document.getElementById('veto'), chips = document.getElementById('veto-chips');
+    Array.prototype.forEach.call(chips.querySelectorAll('button'), function (b) {
+      b.addEventListener('click', function () {
+        var t = parseFloat(b.getAttribute('data-t'));
+        var go = function () { veto.currentTime = t; veto._userPause(); };
+        if (veto.readyState >= 1) go(); else { veto.preload = 'auto'; veto.addEventListener('loadedmetadata', go, { once: true }); veto.load(); }
+        Array.prototype.forEach.call(chips.querySelectorAll('button'), function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      });
+    });
+    veto.addEventListener('play', function () { Array.prototype.forEach.call(chips.querySelectorAll('button'), function (o) { o.setAttribute('aria-pressed', 'false'); }); });
+    function setVeto() {}
+
+    /* ---------- jumping to a clip starts it from the beginning once it is on screen */
+    function openClip(id, wantFull) {
+      var el = document.getElementById(id), v = el && el.querySelector('video'); if (!v) return;
+      if (v === veto) setVeto(!!wantFull);
+      if (reduce) return;
+      v.preload = 'auto'; v.pause(); v.currentTime = 0; delete v.dataset.user;
+      var r = v.getBoundingClientRect();
+      if (r.top < innerHeight && r.bottom > 0) play(v); else v.dataset.restart = '1';
+    }
+    document.addEventListener('click', function (e) {
+      var a = e.target.closest && e.target.closest('a[href^="#clip-"]');
+      if (a) openClip(a.getAttribute('href').slice(1), a.getAttribute('data-full') === '1');
+    });
+
+    /* ---------- the wall: on a desktop, each tile plays its own clip, cropped to the agent's view */
+    var tiles = Array.prototype.slice.call(document.querySelectorAll('#wall a'));
+    function layout(t) {
+      var v = t._v; if (!v || !v.videoWidth) return;
+      var c = t.getAttribute('data-crop').split(',').map(parseFloat), box = t.querySelector('.thumb');
+      var Tw = box.clientWidth, Th = box.clientHeight, W = v.videoWidth, H = v.videoHeight;
+      var s = Math.min(Tw / (c[2] * W), Th / (c[3] * H));
+      v.style.width = (W * s) + 'px'; v.style.height = (H * s) + 'px';
+      v.style.left = (-c[0] * W * s + (Tw - c[2] * W * s) / 2) + 'px';
+      v.style.top = (-c[1] * H * s + (Th - c[3] * H * s) / 2) + 'px';
+    }
+    if (!coarse && !reduce && !saveData && 'IntersectionObserver' in window) {
+      var wallIO = new IntersectionObserver(function (es) {
+        es.forEach(function (e) {
+          var t = e.target;
+          if (e.isIntersecting && !lb.open) {
+            if (!t._v) {
+              var v = document.createElement('video'); v.muted = true; v.loop = true; v.playsInline = true; v.preload = 'auto';
+              v.src = 'assets/videos/' + t.getAttribute('data-v') + '.mp4';
+              v.addEventListener('loadedmetadata', function () { layout(t); });
+              v.addEventListener('playing', function () { v.className = 'on'; });
+              t.querySelector('.thumb').appendChild(v); t._v = v;
+            }
+            play(t._v);
+          } else if (t._v) { t._v.pause(); }
+        });
+      }, { threshold: 0.2 });
+      tiles.forEach(function (t) { wallIO.observe(t); });
+      window.addEventListener('resize', function () { tiles.forEach(layout); });
+    }
+
+    /* ---------- method figure: highlight one step (on a phone, go to its column) */
+    var fig = document.getElementById('fig3'), reset = document.getElementById('fig3-reset');
+    var steps = Array.prototype.slice.call(document.querySelectorAll('.step'));
+    var narrow = window.matchMedia('(max-width: 700px)');
+    function setStep(n) {
+      fig.setAttribute('data-step', n);
+      steps.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-step') === String(n))); });
+      reset.hidden = (String(n) === '0');
+    }
+    steps.forEach(function (b) {
+      b.addEventListener('click', function () {
+        var n = b.getAttribute('data-step');
+        if (narrow.matches) { var c = document.querySelectorAll('.fig3-cols figure')[n - 1]; if (c) c.scrollIntoView({ block: 'start' }); return; }
+        setStep(fig.getAttribute('data-step') === n ? 0 : n);
+      });
+    });
+    reset.addEventListener('click', function () { setStep(0); });
+
+    /* ---------- bibtex */
+    var btn = document.getElementById('copy-bib'), pre = document.getElementById('bib-text');
+    btn.addEventListener('click', function () {
+      var done = function () { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 1600); };
+      var fallback = function () {
+        var r = document.createRange(); r.selectNodeContents(pre);
+        var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+        btn.textContent = 'Selected, press Ctrl+C'; setTimeout(function () { btn.textContent = 'Copy'; }, 2400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) { navigator.clipboard.writeText(pre.textContent).then(done, fallback); } else { fallback(); }
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('a[aria-disabled="true"]'), function (a) {
+      a.addEventListener('click', function (e) { e.preventDefault(); });
+    });
+  })();
+</script>
+
+</body>
+</html>
