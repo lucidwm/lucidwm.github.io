@@ -1,0 +1,86 @@
+/* LucidWM interactive: the veto walk, base against ours.  Scoped to .lwi-veto; reads the page tokens with fallbacks. */
+.lwi-veto {
+  --lwi-ink: var(--ink, #1b1f24); --lwi-muted: var(--muted, #5e6570); --lwi-faint: var(--faint, #8a919b); --lwi-hair: var(--hair, #e3e6eb);
+  --lwi-bg: var(--bg, #ffffff); --lwi-ours: var(--data-ours, #1f5fa7); --lwi-base: var(--data-base, #6e6e6e);
+  --lwi-alarm: var(--alarm, #c1392d); --lwi-accent: var(--lucid-bright, #2f6fb5); --lwi-sand: #f0e7d4;
+  --lwi-media-filter: none; --lwi-wash: .13; --lwi-r: var(--r, 6px); --lwi-t-fast: var(--t-fast, 120ms); --lwi-ease: var(--ease, cubic-bezier(.2, .7, .2, 1));
+  --lwi-sans: var(--sans, "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif);
+  margin: 0; font-family: var(--lwi-sans); color: var(--lwi-ink);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lwi-veto {
+    --lwi-ink: var(--ink, #e8eaed); --lwi-muted: var(--muted, #a2aab4); --lwi-faint: var(--faint, #7d8590); --lwi-hair: var(--hair, #262c34);
+    --lwi-bg: var(--bg, #0f1318); --lwi-ours: var(--data-ours, #78a6e6); --lwi-base: var(--data-base, #9aa1a9);
+    --lwi-alarm: var(--alarm, #e26a55); --lwi-accent: var(--lucid-bright, #78a6e6); --lwi-sand: #3a3326; --lwi-media-filter: brightness(.92); --lwi-wash: .22;
+  }
+}
+:root[data-theme="dark"] .lwi-veto {
+  --lwi-ink: var(--ink, #e8eaed); --lwi-muted: var(--muted, #a2aab4); --lwi-faint: var(--faint, #7d8590); --lwi-hair: var(--hair, #262c34);
+  --lwi-bg: var(--bg, #0f1318); --lwi-ours: var(--data-ours, #78a6e6); --lwi-base: var(--data-base, #9aa1a9);
+  --lwi-alarm: var(--alarm, #e26a55); --lwi-accent: var(--lucid-bright, #78a6e6); --lwi-sand: #3a3326; --lwi-media-filter: brightness(.92); --lwi-wash: .22;
+}
+
+/* the two first-person views */
+.lwi-veto__views { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.lwi-veto__cap { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; margin-bottom: 8px; font-size: 13px; line-height: 1.4; }
+.lwi-veto__who { display: flex; align-items: baseline; gap: 8px; min-width: 0; }
+.lwi-veto__who i { flex: none; align-self: center; width: 14px; height: 0; border-top: 2.5px solid var(--lwi-ours); border-radius: 2px; }
+.lwi-veto__cam[data-run="base"] .lwi-veto__who i { border-top-color: var(--lwi-base); border-top-width: 3px; }
+.lwi-veto__who b { font-weight: 600; }
+.lwi-veto__who span { color: var(--lwi-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lwi-veto__step { flex: none; color: var(--lwi-muted); font-variant-numeric: tabular-nums; }
+.lwi-veto__frame {
+  position: relative; aspect-ratio: 4 / 3; border-radius: var(--lwi-r); background: #2a2622;
+  outline: 3px solid transparent; outline-offset: 3px; transition: outline-color var(--lwi-t-fast) var(--lwi-ease);
+}
+.lwi-veto__frame.is-alarm { outline-color: var(--lwi-alarm); }
+.lwi-veto__frame canvas { display: block; width: 100%; height: 100%; border-radius: inherit; filter: var(--lwi-media-filter); }
+.lwi-veto__load {
+  position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--lwi-accent); pointer-events: none;
+  transition: width 200ms linear, opacity 280ms var(--lwi-ease);
+}
+.lwi-veto__load.is-done { opacity: 0; }
+
+/* map and readouts */
+.lwi-veto__lower { display: grid; grid-template-columns: minmax(0, 40fr) minmax(0, 60fr); gap: 32px; margin-top: 32px; align-items: stretch; }
+.lwi-veto__map { position: relative; }
+.lwi-veto__map svg { display: block; width: 100%; height: auto; aspect-ratio: 1060 / 928; cursor: pointer; }
+.lwi-veto__key { display: flex; flex-wrap: wrap; gap: 4px 16px; margin: 8px 0 0; padding: 0; list-style: none; font-size: 12.5px; line-height: 1.4; color: var(--lwi-muted); }
+.lwi-veto__key li { display: flex; align-items: center; gap: 6px; }
+.lwi-veto__key svg { flex: none; width: 14px; height: 14px; overflow: visible; }
+.lwi-veto__chart {
+  position: relative; min-height: 240px; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent; border-radius: 4px;
+}
+.lwi-veto__chart:focus-visible { outline: 2px solid var(--lwi-accent); outline-offset: 3px; }
+.lwi-veto__chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lwi-veto svg text { font-family: var(--lwi-sans); font-size: 12px; fill: var(--lwi-muted); font-variant-numeric: tabular-nums; }
+.lwi-veto svg text.is-name { font-size: 12.5px; font-weight: 500; fill: var(--lwi-ink); }
+.lwi-veto svg text.is-key { font-weight: 600; fill: var(--lwi-ink); }
+
+/* moments, as a list of steps */
+.lwi-veto__row { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 24px; margin-top: 20px; }
+.lwi-veto button {
+  border: 0; background: none; padding: 4px 0; margin: 0; cursor: pointer; font: 400 13px/1.4 var(--lwi-sans); color: var(--lwi-muted);
+  transition: color var(--lwi-t-fast) var(--lwi-ease); text-align: left;
+}
+.lwi-veto button:hover, .lwi-veto button[aria-pressed="true"] { color: var(--lwi-ink); }
+.lwi-veto button:focus-visible { outline: 2px solid var(--lwi-accent); outline-offset: 3px; border-radius: 4px; }
+.lwi-veto__play { font-weight: 500 !important; }
+.lwi-veto__moments { display: flex; flex-wrap: wrap; gap: 4px 24px; margin: 0; padding: 0; list-style: none; }
+.lwi-veto__moments b { font-weight: 600; color: var(--lwi-ink); margin-right: 6px; font-variant-numeric: tabular-nums; }
+.lwi-veto__moments .is-key b { color: var(--lwi-alarm); }
+.lwi-veto__state { margin: 8px 0 0; font-size: 13px; line-height: 1.45; color: var(--lwi-muted); font-variant-numeric: tabular-nums; min-height: 19px; }
+.lwi-veto__state b { font-weight: 600; color: var(--lwi-ink); }
+
+@media (max-width: 760px) {
+  .lwi-veto__views { gap: 8px; }
+  .lwi-veto__who span { display: none; }
+  .lwi-veto__cap { font-size: 12.5px; margin-bottom: 6px; }
+  .lwi-veto__lower { grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+  .lwi-veto__chart { min-height: 0; height: 210px; }
+  .lwi-veto__row, .lwi-veto__moments { gap: 2px 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lwi-veto__frame, .lwi-veto__load, .lwi-veto button { transition: none; }
+}

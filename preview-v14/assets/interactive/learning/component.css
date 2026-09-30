@@ -1,0 +1,81 @@
+/* LucidWM interactive: one imagined future at six checkpoints.  Scoped to .lwi-learn; reads the page tokens with fallbacks. */
+.lwi-learn {
+  --lwi-ink: var(--ink, #1b1f24); --lwi-muted: var(--muted, #5e6570); --lwi-faint: var(--faint, #8a919b); --lwi-hair: var(--hair, #e3e6eb);
+  --lwi-bg: var(--bg, #ffffff); --lwi-ours: var(--data-ours, #1f5fa7); --lwi-base: var(--data-base, #6e6e6e);
+  --lwi-accent: var(--lucid-bright, #2f6fb5); --lwi-sand: #f3ecdd; --lwi-track: #eceef1;
+  --lwi-media-filter: none; --lwi-r: var(--r, 6px); --lwi-t-fast: var(--t-fast, 120ms); --lwi-t-ui: var(--t-ui, 200ms);
+  --lwi-ease: var(--ease, cubic-bezier(.2, .7, .2, 1));
+  --lwi-sans: var(--sans, "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif);
+  margin: 0; font-family: var(--lwi-sans); color: var(--lwi-ink);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lwi-learn {
+    --lwi-ink: var(--ink, #e8eaed); --lwi-muted: var(--muted, #a2aab4); --lwi-faint: var(--faint, #7d8590); --lwi-hair: var(--hair, #262c34);
+    --lwi-bg: var(--bg, #0f1318); --lwi-ours: var(--data-ours, #78a6e6); --lwi-base: var(--data-base, #9aa1a9);
+    --lwi-accent: var(--lucid-bright, #78a6e6); --lwi-sand: #2d2920; --lwi-track: #222831; --lwi-media-filter: brightness(.92);
+  }
+}
+:root[data-theme="dark"] .lwi-learn {
+  --lwi-ink: var(--ink, #e8eaed); --lwi-muted: var(--muted, #a2aab4); --lwi-faint: var(--faint, #7d8590); --lwi-hair: var(--hair, #262c34);
+  --lwi-bg: var(--bg, #0f1318); --lwi-ours: var(--data-ours, #78a6e6); --lwi-base: var(--data-base, #9aa1a9);
+  --lwi-accent: var(--lucid-bright, #78a6e6); --lwi-sand: #2d2920; --lwi-track: #222831; --lwi-media-filter: brightness(.92);
+}
+
+.lwi-learn .lwi-vh { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* checkpoint switch: six text buttons on one hairline */
+.lwi-learn__ckpts { display: flex; align-items: flex-end; gap: 0; border-bottom: 1px solid var(--lwi-hair); margin-bottom: 24px; }
+.lwi-learn__lab { font-size: 13px; color: var(--lwi-muted); padding: 0 16px 9px 0; white-space: nowrap; }
+.lwi-learn__ckpts button {
+  flex: 1 1 0; min-width: 0; border: 0; background: none; margin: 0 0 -1px; padding: 8px 4px 9px; cursor: pointer;
+  font: 500 14px/1.3 var(--lwi-sans); color: var(--lwi-muted); font-variant-numeric: tabular-nums;
+  border-bottom: 2px solid transparent; transition: color var(--lwi-t-fast) var(--lwi-ease), border-color var(--lwi-t-ui) var(--lwi-ease);
+}
+.lwi-learn__ckpts button:hover { color: var(--lwi-ink); }
+.lwi-learn__ckpts button[aria-checked="true"] { color: var(--lwi-ink); font-weight: 600; border-bottom-color: var(--lwi-accent); }
+.lwi-learn__ckpts button:focus-visible { outline: 2px solid var(--lwi-accent); outline-offset: -2px; border-radius: 4px; }
+
+.lwi-learn__body { display: grid; grid-template-columns: minmax(0, 56fr) minmax(0, 44fr); gap: 40px; align-items: start; }
+
+/* tiles: rows real / imagined / error, columns t = 1, 8, 12, 24 (as the paper's Fig. 18) */
+.lwi-learn__tiles { display: grid; grid-template-columns: 64px repeat(4, minmax(0, 1fr)); gap: 6px 8px; align-items: center; }
+.lwi-learn__tiles .h { font-size: 12.5px; color: var(--lwi-muted); text-align: center; line-height: 1.3; align-self: end; padding-bottom: 2px; font-variant-numeric: tabular-nums; }
+.lwi-learn__tiles .h small { display: block; font-size: 11.5px; color: var(--lwi-faint); }
+.lwi-learn__tiles .r { font-size: 12.5px; color: var(--lwi-muted); line-height: 1.25; }
+.lwi-learn__tiles canvas { display: block; width: 100%; aspect-ratio: 1 / 1; image-rendering: pixelated; image-rendering: crisp-edges; border-radius: 2px; background: #10151c; filter: var(--lwi-media-filter); }
+.lwi-learn__tiles canvas.is-map { filter: none; }
+.lwi-learn__tiles .d { padding: 4px 6px 6px; border-radius: 4px; }
+.lwi-learn__tiles .d.is-late, .lwi-learn__tiles .h.is-late { background: var(--lwi-sand); border-radius: 4px; }
+.lwi-learn__tiles .h.is-late { padding: 2px 0 4px; }
+.lwi-learn__tiles .d span { display: block; font-size: 13.5px; font-weight: 600; font-variant-numeric: tabular-nums; text-align: center; }
+.lwi-learn__tiles .d i { display: block; height: 4px; margin-top: 5px; border-radius: 2px; background: var(--lwi-track); overflow: hidden; }
+.lwi-learn__tiles .d i b { display: block; height: 100%; width: 0; background: var(--lwi-ours); border-radius: 2px; transition: width var(--lwi-t-ui) var(--lwi-ease); }
+
+/* the 24-step means over training */
+.lwi-learn__trend { min-width: 0; }
+.lwi-learn__cap { font-size: 13px; color: var(--lwi-muted); margin: 0 0 6px; }
+.lwi-learn__plot { position: relative; height: 250px; cursor: pointer; touch-action: pan-y; user-select: none; -webkit-user-select: none; }
+.lwi-learn__plot svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lwi-learn svg text { font-family: var(--lwi-sans); font-size: 12px; fill: var(--lwi-muted); font-variant-numeric: tabular-nums; }
+.lwi-learn svg text.is-name { font-size: 12.5px; font-weight: 600; fill: var(--lwi-ink); }
+.lwi-learn__means { width: 100%; border-collapse: collapse; margin-top: 16px; font-size: 13px; font-variant-numeric: tabular-nums; }
+.lwi-learn__means th, .lwi-learn__means td { padding: 5px 8px; text-align: right; border-bottom: 1px solid var(--lwi-hair); font-weight: 400; }
+.lwi-learn__means th:first-child, .lwi-learn__means td:first-child { text-align: left; padding-left: 0; }
+.lwi-learn__means thead th { color: var(--lwi-muted); font-weight: 500; }
+.lwi-learn__means td:first-child { color: var(--lwi-muted); }
+.lwi-learn__means td:first-child i { display: inline-block; width: 12px; height: 0; border-top: 2px solid; vertical-align: middle; margin-right: 8px; border-radius: 1px; }
+.lwi-learn__means .is-on { color: var(--lwi-ink); font-weight: 600; }
+.lwi-learn__means .dim { color: var(--lwi-faint); }
+
+@media (max-width: 760px) {
+  .lwi-learn__body { grid-template-columns: 1fr; gap: 32px; }
+  .lwi-learn__lab { display: none; }
+  .lwi-learn__ckpts button { font-size: 13px; padding: 8px 2px 9px; }
+  .lwi-learn__tiles { grid-template-columns: 52px repeat(4, minmax(0, 1fr)); gap: 5px 6px; }
+  .lwi-learn__tiles .d span { font-size: 12.5px; }
+  .lwi-learn__tiles .d { padding: 4px 2px 6px; }
+  .lwi-learn__plot { height: 220px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lwi-learn__ckpts button, .lwi-learn__tiles .d i b { transition: none; }
+}

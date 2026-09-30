@@ -1,0 +1,62 @@
+/* LucidWM interactive: the fall scrubber.  Scoped to .lwi-fall; reads the page tokens (spec_tokens.css) with fallbacks. */
+.lwi-fall {
+  --lwi-ink: var(--ink, #1b1f24); --lwi-muted: var(--muted, #5e6570); --lwi-faint: var(--faint, #8a919b); --lwi-hair: var(--hair, #e3e6eb);
+  --lwi-bg: var(--bg, #ffffff); --lwi-ours: var(--data-ours, #1f5fa7); --lwi-base: var(--data-base, #6e6e6e);
+  --lwi-alarm: var(--alarm, #c1392d); --lwi-event: var(--doubt, #b8781f); --lwi-accent: var(--lucid-bright, #2f6fb5);
+  --lwi-media-filter: none; --lwi-wash: .13; --lwi-r: var(--r, 6px); --lwi-t-fast: var(--t-fast, 120ms); --lwi-ease: var(--ease, cubic-bezier(.2, .7, .2, 1));
+  --lwi-sans: var(--sans, "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif);
+  margin: 0; font-family: var(--lwi-sans); color: var(--lwi-ink);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .lwi-fall {
+    --lwi-ink: var(--ink, #e8eaed); --lwi-muted: var(--muted, #a2aab4); --lwi-faint: var(--faint, #7d8590); --lwi-hair: var(--hair, #262c34);
+    --lwi-bg: var(--bg, #0f1318); --lwi-ours: var(--data-ours, #78a6e6); --lwi-base: var(--data-base, #9aa1a9);
+    --lwi-alarm: var(--alarm, #e26a55); --lwi-event: var(--doubt, #dba451); --lwi-accent: var(--lucid-bright, #78a6e6); --lwi-media-filter: brightness(.92); --lwi-wash: .22;
+  }
+}
+:root[data-theme="dark"] .lwi-fall {
+  --lwi-ink: var(--ink, #e8eaed); --lwi-muted: var(--muted, #a2aab4); --lwi-faint: var(--faint, #7d8590); --lwi-hair: var(--hair, #262c34);
+  --lwi-bg: var(--bg, #0f1318); --lwi-ours: var(--data-ours, #78a6e6); --lwi-base: var(--data-base, #9aa1a9);
+  --lwi-alarm: var(--alarm, #e26a55); --lwi-event: var(--doubt, #dba451); --lwi-accent: var(--lucid-bright, #78a6e6); --lwi-media-filter: brightness(.92); --lwi-wash: .22;
+}
+
+.lwi-fall__stage { display: grid; grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); gap: 32px; align-items: stretch; }
+.lwi-fall__view {
+  position: relative; aspect-ratio: 1 / 1; border-radius: var(--lwi-r); background: #243a55;
+  outline: 3px solid transparent; outline-offset: 3px; transition: outline-color var(--lwi-t-fast) var(--lwi-ease);
+}
+.lwi-fall__view.is-alarm { outline-color: var(--lwi-alarm); }
+.lwi-fall__view canvas { display: block; width: 100%; height: 100%; border-radius: inherit; filter: var(--lwi-media-filter); }
+.lwi-fall__load {
+  position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--lwi-accent);
+  transition: width 200ms linear, opacity 280ms var(--lwi-ease); pointer-events: none;
+}
+.lwi-fall__load.is-done { opacity: 0; }
+
+.lwi-fall__chart {
+  position: relative; min-height: 260px; cursor: ew-resize; touch-action: pan-y; user-select: none; -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent; border-radius: 4px;
+}
+.lwi-fall__chart:focus-visible { outline: 2px solid var(--lwi-accent); outline-offset: 3px; }
+.lwi-fall__chart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.lwi-fall svg text { font-family: var(--lwi-sans); font-size: 12px; fill: var(--lwi-muted); font-variant-numeric: tabular-nums; }
+.lwi-fall svg text.is-name { font-size: 13px; font-weight: 600; fill: var(--lwi-ink); }
+.lwi-fall svg text.is-event { font-size: 13px; font-weight: 600; fill: var(--lwi-ink); }
+
+.lwi-fall__row { display: flex; align-items: baseline; gap: 16px; margin-top: 16px; min-height: 28px; }
+.lwi-fall__play {
+  flex: none; border: 0; background: none; padding: 4px 0; margin: 0; cursor: pointer;
+  font: 500 13px/1.4 var(--lwi-sans); color: var(--lwi-muted); transition: color var(--lwi-t-fast) var(--lwi-ease);
+}
+.lwi-fall__play:hover, .lwi-fall__play:focus-visible { color: var(--lwi-ink); }
+.lwi-fall__play:focus-visible { outline: 2px solid var(--lwi-accent); outline-offset: 3px; border-radius: 4px; }
+.lwi-fall__state { margin: 0; font-size: 13px; line-height: 1.4; color: var(--lwi-muted); font-variant-numeric: tabular-nums; }
+.lwi-fall__state b { font-weight: 600; color: var(--lwi-ink); }
+
+@media (max-width: 720px) {
+  .lwi-fall__stage { grid-template-columns: 1fr; gap: 20px; }
+  .lwi-fall__chart { min-height: 0; height: 250px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .lwi-fall__view, .lwi-fall__load, .lwi-fall__play { transition: none; }
+}
