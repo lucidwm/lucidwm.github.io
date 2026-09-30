@@ -29,7 +29,8 @@
 <link rel="icon" href="assets/favicon-32.png" type="image/png" sizes="32x32">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <link rel="preload" as="image" href="assets/videos/fall_stage.jpg" media="(min-width: 761px)">
-<link rel="preload" as="image" href="assets/videos/fall_stage_m_sd.jpg" media="(max-width: 760px)">
+<link rel="preload" as="image" href="assets/videos/fall_stage_m.jpg" media="(max-width: 760px) and (min-resolution: 2dppx)">
+<link rel="preload" as="image" href="assets/videos/fall_stage_m_sd.jpg" media="(max-width: 760px) and (max-resolution: 1.99dppx)">
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/newsreader-latin.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/newsreader-italic-latin.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="assets/fonts/plex-sans-latin.woff2" crossorigin>
@@ -62,7 +63,7 @@
     --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
     --sans: "IBM Plex Sans", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
-    --cw: 1200px; --prose: 680px;
+    --cw: 1200px; --prose: 620px;
     --fs-2: clamp(30px, 2.8vw, 44px);      /* section */
     --fs-g: clamp(25px, 2.15vw, 34px);     /* group */
     --fs-h: 23px;                          /* clip title */
@@ -102,6 +103,15 @@
     align-items: center; align-content: center; min-height: min(100svh, 1100px); padding-block: var(--s7); }
   .textcol { grid-column: 2; grid-row: 1; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s5); min-width: 0; }
   .stagecol { grid-column: 4; grid-row: 1; min-width: 0; }
+  @media (min-width: 1024px) { .hero { min-height: min(calc(100svh - 76px), 1024px); padding-block: 40px 28px; } }
+  @media (min-width: 1680px) {
+    .hero { --tw: 520px; }
+    .textcol { justify-content: center; gap: 44px; }
+    h1 { font-size: 62px; }
+    .subtitle { font-size: 23px; }
+    .thesis { font-size: 22px; }
+    .names { font-size: 17px; }
+  }
   h1 { font-family: var(--serif); font-weight: 500; font-size: min(52px, calc(var(--tw) / 8.1)); line-height: 1.02; letter-spacing: -.02em; margin: -.12em 0 0;
        font-variation-settings: "opsz" 72; }
   h1 span { display: block; white-space: nowrap; }
@@ -121,6 +131,7 @@
   .btn.primary .soon { color: rgba(255, 255, 255, .78); }
   .codeline { margin: 10px 0 0; font-size: var(--fs-6); color: var(--faint); }
   @media (min-width: 1024px) and (max-width: 1399px) { .btn .id { display: none; } }
+  @media (min-width: 761px) and (max-width: 1023px) { .hero .thesis, .hero .by { padding-right: max(0px, calc(100% - 620px)); } }
 
   /* the screen: one dark panel, round on the page side, cut by the window on the right */
   .screen { background: var(--band); color: var(--band-ink); border-radius: var(--r) 0 0 var(--r); overflow: hidden; }
@@ -129,21 +140,19 @@
     opacity: 0; transition: opacity 200ms cubic-bezier(.4, 0, 1, 1); }
   .stage video.on { opacity: 1; transition: opacity 400ms cubic-bezier(0, 0, .2, 1); }
   .stage video.idle { display: none; }
-  .stage .count { position: absolute; z-index: 3; top: 12px; right: 16px; margin: 0; font: 400 14px/1 var(--sans); color: var(--band-muted); letter-spacing: .02em;
-    font-variant-numeric: tabular-nums; pointer-events: none; }
-  .stage .count b { font-weight: 500; color: var(--band-ink); }
   .stage.loading::after, .plate.loading::after, .duo__frame.loading::after, .lb__screen.loading::after { content: ""; position: absolute; left: 0; bottom: 0; z-index: 4; height: 2px; width: 28%;
     background: var(--lucid-bright); pointer-events: none; animation: lwm-seg 1s var(--ease) infinite alternate; }
-  .stage.loading::after { background: var(--band-ink); }
+  .stage.loading::after { background: var(--band-ink); bottom: 14px; left: 4.4%; width: 20%; animation-name: lwm-seg-stage; }   /* inside the picture, clear of the chapter tracks */
+  @keyframes lwm-seg-stage { from { left: 4.4%; } to { left: 75.6%; } }
   @keyframes lwm-seg { from { left: 0; } to { left: 72%; } }
   .chapters { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; column-gap: clamp(16px, 2vw, 28px); align-items: start;
     max-width: 1280px; padding: 0 4.4% clamp(18px, 2.2vw, 26px); }
   .ch { display: block; text-align: left; padding: 0 0 2px; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; }
-  .ch .track { display: block; position: relative; height: 2px; background: var(--band-track); }
+  .ch .track { display: block; position: relative; height: 3px; background: rgba(232, 234, 237, .28); }
   .ch .track i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--band-ink); }
-  .ch .k { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; font: 400 14.5px/1.35 var(--sans); color: var(--band-muted); transition: color 200ms var(--ease); }
+  .ch .k { display: flex; align-items: baseline; gap: 8px; margin-top: 14px; font: 400 15px/1.35 var(--sans); color: var(--band-muted); transition: color 200ms var(--ease); }
   .ch .k .n { flex: none; font-variant-numeric: tabular-nums; }
-  .ch .v { display: block; margin-top: 4px; font: 400 16px/1.35 var(--serif); color: var(--band-muted); opacity: 0; transition: opacity 300ms cubic-bezier(0, 0, .2, 1); }
+  .ch .v { display: block; margin-top: 4px; font: 400 16px/1.35 var(--serif); color: var(--band-muted); opacity: .5; transition: opacity 300ms cubic-bezier(0, 0, .2, 1); }
   .ch .v b { font-weight: 500; color: var(--band-ink); }
   .ch .v .cmp { display: block; }
   .ch[aria-current="true"] .k { color: var(--band-ink); font-weight: 500; }
@@ -171,24 +180,33 @@
   .aff-toggle { display: none; font: inherit; font-size: var(--fs-6); color: var(--muted); background: none; border: 0; padding: 6px 0; cursor: pointer; }
   .aff-toggle::before { content: "+ "; } .aff-toggle[aria-expanded="true"]::before { content: "\2212\00a0"; }
 
-  /* ================================================================ the sections bar: a quiet running head */
+  /* ================================================================ the sections bar: the name, where you are, then the sections and Paper on the right */
   .topbar { position: fixed; left: 0; right: 0; top: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px); background: var(--bg);
-    border-bottom: 1px solid var(--hair); opacity: 0; transform: translateY(-8px); visibility: hidden;
-    transition: opacity 240ms var(--ease), transform 240ms var(--ease), visibility 0s linear 240ms; }
-  .topbar.show { opacity: 1; transform: none; visibility: visible; transition-delay: 0s; }
-  .topbar .in { height: var(--bar-h); display: flex; align-items: stretch; gap: 40px; }
-  .topbar .brand { flex: none; display: flex; align-items: center; font-family: var(--serif); font-size: 20px; font-weight: 500; letter-spacing: -.01em;
+    border-bottom: 1px solid var(--hair); opacity: 0; visibility: hidden; transition: opacity 120ms var(--ease), visibility 0s linear 120ms; }
+  .topbar.show { opacity: 1; visibility: visible; transition: opacity 180ms var(--ease), visibility 0s; }
+  .topbar .in { height: var(--bar-h); display: flex; align-items: stretch; }
+  .topbar .brand { flex: none; display: flex; align-items: center; margin-right: auto; font-family: var(--serif); font-size: 20px; font-weight: 500; letter-spacing: -.012em;
     font-variation-settings: "opsz" 36; color: var(--ink); text-decoration: none; }
-  .topbar .secs { flex: 1 1 auto; min-width: 0; display: flex; gap: 28px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .topbar .where { display: none; }
+  .topbar .secs { position: relative; flex: 0 1 auto; min-width: 0; display: flex; gap: 30px; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
   .topbar .secs::-webkit-scrollbar { display: none; }
-  .topbar .secs a { position: relative; flex: none; display: flex; align-items: center; font-size: 14.5px; font-weight: 400; letter-spacing: .005em; color: var(--muted);
+  .topbar .secs a { position: relative; flex: none; display: flex; align-items: center; font-size: 14px; font-weight: 400; letter-spacing: .01em; color: #4f5661;
     text-decoration: none; transition: color var(--t-fast) var(--ease); }
-  .topbar .secs a::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--ink); opacity: 0; transition: opacity var(--t-ui) var(--ease); }
-  .topbar .secs a:hover { color: var(--ink); }
-  .topbar .secs a.on { color: var(--ink); }
-  .topbar .secs a.on::after { opacity: 1; }
-  .topbar .paper { flex: none; display: flex; align-items: center; font-size: 14.5px; font-weight: 500; color: var(--lucid); text-decoration: none; }
-  .topbar .paper:hover { text-decoration: underline; }
+  .topbar .secs a:hover, .topbar .secs a.on { color: var(--ink); }
+  .topbar .secs a:focus-visible { outline-offset: -2px; }
+  .topbar .secs .ink { position: absolute; left: 0; bottom: 0; height: 2px; width: 0; background: var(--ink); opacity: 0; pointer-events: none;
+    transition: transform 240ms var(--ease), width 240ms var(--ease), opacity 160ms var(--ease); }
+  .topbar .paper { position: relative; flex: none; align-self: center; margin-left: 57px; height: 30px; padding: 0 12px; border-radius: var(--r);
+    background: var(--lucid); color: var(--on-accent); font: 500 13.5px/30px var(--sans); letter-spacing: .01em; text-decoration: none;
+    transition: background-color var(--t-fast) var(--ease); }
+  .topbar .paper::before { content: ""; position: absolute; left: -29px; top: 7px; bottom: 7px; width: 1px; background: var(--hair); }
+  .topbar .paper:hover { background: var(--lucid-bright); }
+  @media (min-width: 1100px) {
+    .topbar .brand { margin-right: 0; }
+    .topbar .where { display: block; flex: 1 1 auto; min-width: 0; align-self: center; margin: 0 32px 0 16px; padding-left: 16px; border-left: 1px solid var(--hair);
+      font: italic 400 17px/22px var(--serif); color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; opacity: 0; transition: opacity 160ms var(--ease); }
+    .topbar .where.on { opacity: 1; }
+  }
 
   /* ================================================================ sections */
   section { position: relative; }
@@ -213,7 +231,7 @@
   .wall .t img.m { filter: brightness(.55); }
   .wall .t video.m { opacity: 0; transition: opacity 280ms var(--ease), filter 200ms var(--ease); }
   .wall .t.live video.m { opacity: 1; }
-  .wall.still .t img.m { filter: none; }
+  .wall.still .t img.m, .wall .t.nolive img.m { filter: none; }
   .wall.hovering .t:not(:hover):not(:focus-visible) .m { filter: brightness(.42); }
   .wall .t:focus-visible { outline: 2px solid var(--band-focus); outline-offset: -2px; border-radius: 0; }
   .wall .more { display: none; order: 99; flex-direction: column; justify-content: flex-end; gap: 2px; padding: 12px 14px; aspect-ratio: 4 / 3; border: 0; border-radius: 0;
@@ -221,7 +239,7 @@
   .wall .more span { font-family: var(--serif); font-size: 21px; font-weight: 400; }
   .wall .more small { font-size: 14px; color: var(--band-muted); }
   .wall .more:hover { background: #1b1f26; }
-  .band-cap { min-height: 60px; display: flex; align-items: center; }
+  .band-cap { min-height: 84px; display: flex; align-items: center; }
   .band-cap p { margin: 0; font-size: 15px; line-height: 1.4; color: var(--band-muted); }
   .band-cap p b { font-weight: 500; color: var(--band-ink); }
 
@@ -278,6 +296,7 @@
   .duo__ink { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--ink); pointer-events: none;
     transition: left 240ms var(--ease), width 240ms var(--ease); }
   .duo__stack { position: relative; }
+  .duo__pane { scroll-margin-top: 64px; }   /* #clip-x-step: the tabs above the pane stay clear of the bar */
   .duo__stack.is-sizing { overflow: hidden; transition: height 320ms var(--ease); }
   .duo__pane { opacity: 1; transition: opacity 220ms var(--ease); }
   .duo__pane:not(.is-on) { position: absolute; left: 0; right: 0; top: 0; opacity: 0; visibility: hidden; pointer-events: none;
@@ -514,7 +533,7 @@
     .names { font-size: 15px; gap: 0 12px; }
     .stage { aspect-ratio: 1 / 1; }
     .chapters { grid-template-columns: repeat(3, minmax(0, 1fr)) auto; column-gap: 12px; padding: 0 16px 14px; }
-    .ch .k { font-size: 14px; margin-top: 10px; line-height: 1.3; gap: 6px; }
+    .ch .k { font-size: 14px; margin-top: 10px; line-height: 1.3; gap: 6px; text-wrap: balance; }
     .ch .v { display: none; }
     .now { display: block; grid-column: 1 / -1; margin: 10px 0 0; font: 400 15.5px/1.35 var(--serif); color: var(--band-muted); }
     .now b { color: var(--band-ink); font-weight: 500; }
@@ -527,10 +546,12 @@
     .js .aff-toggle { display: inline-block; }
     .affil .full { position: static; display: inline; width: auto; max-width: none; padding: 0; background: none; color: var(--muted); opacity: 1; visibility: visible; }
     .affil .short { display: none; }
-    .topbar .in { gap: 16px; }
     .topbar .brand { display: none; }
-    .topbar .secs { gap: 20px; -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); mask-image: linear-gradient(to right, #000 calc(100% - 32px), transparent); padding-right: 24px; }
-    .topbar .secs a, .topbar .paper { font-size: 14px; }
+    .topbar .secs { flex: 1 1 auto; gap: 22px; margin-left: -16px; padding: 0 20px 0 16px;
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 28px), transparent);
+              mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 28px), transparent); }
+    .topbar .paper { margin-left: 12px; height: 28px; line-height: 28px; padding: 0 10px; }
+    .topbar .paper::before { display: none; }
     .band { margin-top: var(--s8); padding-top: 48px; }
     .band-head { flex-direction: column; align-items: flex-start; gap: var(--s4); padding-bottom: 24px; }
     .band-head .side .watch-all { display: none; }
@@ -621,17 +642,18 @@
         <video class="on" data-src="assets/videos/fall_stage.mp4" data-src-sq="assets/videos/fall_stage_m.mp4" data-poster="assets/videos/fall_stage.jpg" data-poster-sq="assets/videos/fall_stage_m.jpg" data-clip="clip-fall" width="1920" height="1080" muted playsinline autoplay preload="auto" aria-hidden="true"></video>
         <video class="idle" data-src="assets/videos/walkin_stage.mp4" data-src-sq="assets/videos/walkin_stage_m.mp4" data-poster="assets/videos/walkin_stage.jpg" data-poster-sq="assets/videos/walkin_stage_m.jpg" data-clip="clip-walkin" width="1920" height="1080" muted playsinline preload="none" aria-hidden="true"></video>
         <video class="idle" data-src="assets/videos/veto_stage.mp4" data-src-sq="assets/videos/veto_stage_m.mp4" data-poster="assets/videos/veto_stage.jpg" data-poster-sq="assets/videos/veto_stage_m.jpg" data-clip="clip-veto" width="1920" height="1080" muted playsinline preload="none" aria-hidden="true"></video>
-        <p class="count" aria-hidden="true"><b>1</b> / 3</p>
       </a>
       <script>
         (function () {
           var rm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches, sq = window.LWM_PHONE;
+          var full = sq && (window.devicePixelRatio || 1) >= 2 && !(navigator.connection && navigator.connection.saveData);
+          var pick = function (path) { return full ? path : window.LWM_V(path); };
           Array.prototype.forEach.call(document.querySelectorAll('#stage video'), function (v) {
             var s = v.getAttribute(sq ? 'data-src-sq' : 'data-src'), p = v.getAttribute(sq ? 'data-poster-sq' : 'data-poster');
-            v.setAttribute('data-poster', window.LWM_V(p));
+            v.setAttribute('data-poster', pick(p));
             if (rm) v.removeAttribute('autoplay');
-            if (v.classList.contains('on')) v.setAttribute('poster', window.LWM_V(p));
-            v.setAttribute('src', window.LWM_V(s));
+            if (v.classList.contains('on')) v.setAttribute('poster', pick(p));
+            v.setAttribute('src', pick(s));
           });
         })();
       </script>
@@ -661,6 +683,7 @@
 <nav class="topbar" aria-label="Sections">
   <div class="in c">
     <a class="brand" href="#top">LucidWM</a>
+    <span class="where" aria-hidden="true"></span>
     <div class="secs">
       <a data-sec href="#videos">Videos</a>
       <a data-sec href="#results">Results</a>
@@ -668,6 +691,7 @@
       <a data-sec href="#method">Method</a>
       <a data-sec href="#abstract">Abstract</a>
       <a data-sec href="#bibtex">BibTeX</a>
+      <i class="ink" aria-hidden="true"></i>
     </div>
     <a class="paper" href="https://arxiv.org/abs/2609.37156">Paper</a>
   </div>
@@ -679,7 +703,7 @@
       <h2 id="videos-h">The model doubting its dreams, and acting on it</h2>
       <div class="side"><span class="key-alarm"><i></i>alarm</span><button type="button" class="btn on-dark watch-all">Watch all <span class="soon">115 s</span></button></div>
     </div>
-    <div class="wall" id="wall" aria-label="Fourteen clips; select one to jump to it">
+    <div class="wall" id="wall" aria-label="Select a clip to jump to it">
       <a class="t" href="#clip-veto" data-v="veto" data-g="Acting on trust" data-l="One veto, 190 vs 362 steps" style="--o7:1;--o5:1;--o3:1" aria-label="Acting on trust: One veto, 190 vs 362 steps"></a>
       <a class="t" href="#clip-fall" data-v="fall" data-g="Before the fall" data-l="One fall, 8 steps ahead" style="--o7:2;--o5:2;--o3:2" aria-label="Before the fall: One fall, 8 steps ahead"></a>
       <a class="t" href="#clip-newroom" data-v="newroom" data-g="After observation" data-l="The opened room" style="--o7:3;--o5:3;--o3:5" aria-label="After observation: The opened room"></a>
@@ -702,19 +726,20 @@
   <div class="c read">
     <div class="legend" aria-label="How to read the videos">
       <span><i class="sw-blue"></i>LucidWM</span>
-      <span><i class="sw-grey"></i>the comparison named in each caption</span>
+      <span><i class="sw-grey"></i>comparison</span>
       <span><i class="sw-line"></i>alarm line, one per curve</span>
       <span><i class="sw-red"></i>alarm</span>
     </div>
-    <p class="howto">Every readout is read on the same frames and imagined futures and set against its own alarm line, taken on familiar frames of the same run. Maze walks are scripted routes that read the agent's position only, never the model. <em>Base</em> is the same readout on the unmodified model; in the veto clip, the same agent ignoring doubt.</p>
+    <p class="howto">Every readout is read on the same frames and imagined futures and set against its own alarm line, taken on familiar frames of the same run. <em>Base</em> is the same readout on the unmodified model; in the veto clip, the same agent ignoring doubt.</p>
   </div>
 
   <section class="group c" aria-labelledby="v-trust">
     <h3 class="clip-group" id="v-trust">Acting on trust</h3>
+    <p class="group-intro">The veto is one rule: when doubt holds above the alarm line for three frames, trust in the course collapses, the agent turns, and its policy resumes.</p>
     <article class="clip" id="clip-veto">
       <h4>One veto, half the steps</h4>
       <p class="gist">At step 24 the veto fires; ours reaches the armour at step 190, while base circles the room until step 262 and arrives at step 362. On both altered maps, 143 of 145 vetoes fired inside a changed room, though the agent is never told where the changes are.</p>
-      <details><summary>Details</summary><p>The same weights and seed, twice through a dead end whose deep half was repainted after training: left, <em>base</em> ignores its doubt; right, <em>ours</em> acts on trust. Every wall is where it was, so a policy that learned the map walks in as before. The veto is one rule: when doubt holds above the alarm line for three frames, trust in the course collapses, the agent turns, and its policy resumes. Over its whole walk the entropy of base crosses its own line for a single frame, so the same rule would never have fired.</p></details>
+      <details><summary>Details</summary><p>The same weights and seed, twice through a dead end whose deep half was repainted after training: left, <em>base</em> ignores its doubt; right, <em>ours</em> acts on trust. Every wall is where it was, so a policy that learned the map walks in as before. Over its whole walk the entropy of base crosses its own line for a single frame, so the same rule would never have fired.</p></details>
       <div class="duo" data-duo="veto" data-mode="watch">
         <div class="duo__tabs" role="tablist" aria-label="One veto, half the steps">
           <button type="button" role="tab" id="veto-tab-watch" data-to="watch" aria-selected="true" aria-controls="clip-veto-watch">Watch</button>
@@ -723,7 +748,7 @@
         </div>
         <div class="duo__stack">
           <div class="duo__pane is-on" data-pane="watch" id="clip-veto-watch" role="tabpanel" aria-labelledby="veto-tab-watch">
-            <div class="duo__frame"><video data-src="assets/videos/veto.mp4" data-poster="assets/videos/veto.jpg" width="1600" height="900" muted loop playsinline preload="none"></video></div>
+            <div class="duo__frame"><video data-src="assets/videos/veto.mp4" data-poster="assets/videos/veto.jpg" width="1920" height="1080" muted loop playsinline preload="none"></video></div>
             <div class="duo__ctrl"></div>
           </div>
           <div class="duo__pane" data-pane="step" id="clip-veto-step" role="tabpanel" aria-labelledby="veto-tab-step" inert aria-hidden="true">
@@ -796,6 +821,7 @@
 
   <section class="group c" aria-labelledby="v-after">
     <h3 class="clip-group" id="v-after">After observation: the world has changed</h3>
+    <p class="group-intro">Maze walks are scripted routes that read the agent's position only, never the model.</p>
     <article class="clip" id="clip-repaint">
       <h4>Every pixel changed</h4>
       <p class="gist">The walls of one room are repainted, which changes every pixel and nothing else. In the repainted room the lucid doubt rises far above its alarm line again and again.</p>
@@ -851,7 +877,7 @@
     <article class="clip" id="clip-leaving">
       <h4>Leaving the experienced states</h4>
       <p class="gist">Within ten steps the median doubt of LucidWM crosses the 95th percentile of experienced states, and by the end nine in ten sit above it; the base's doubt never moves.</p>
-      <details><summary>Details</summary><p>Rollouts of both models drift equally far out of the experienced states. Forty-eight random-action rollouts from real states, forty steps each (grey cloud: experienced states); a rollout turns red while its doubt is above the line.</p></details>
+      <details><summary>Details</summary><p>Rollouts of both models drift equally far out of the experienced states. Forty-eight random-action rollouts from real states, forty steps each (grey cloud: experienced states; red: a rollout in alarm).</p></details>
       <div class="player" data-key="2.10"><div class="plate"><video src="assets/videos/leaving.mp4" data-poster="assets/videos/leaving.jpg" width="1920" height="1080" muted loop playsinline preload="none"></video></div></div>
     </article>
     <article class="clip" id="clip-dreams">
@@ -936,7 +962,7 @@
   <section id="method" class="method c" aria-labelledby="method-h">
     <h2 id="method-h">Doubt is learned from experience and carried as trust</h2>
     <div class="prose">
-      <p><abbr title="Subjective Logic">SL</abbr> extends probability by recording how much evidence a belief rests on, so that not knowing is told apart from knowing that an outcome is unlikely. The transition-head logits parameterise a Dirichlet over the next-state probabilities. The prediction is the direction of the evidence; the doubt is its amount.</p>
+      <p><b>Subjective Logic.</b> <abbr title="Subjective Logic">SL</abbr> extends probability by recording how much evidence a belief rests on, so that not knowing is told apart from knowing that an outcome is unlikely. The transition-head logits parameterise a Dirichlet over the next-state probabilities. The prediction is the direction of the evidence; the doubt is its amount.</p>
       <p>A standard world model pins two constants: its head mixes the same &epsilon; into every prediction, and its return keeps the same share &lambda; of every imagined step. We unfold both into quantities read from the head&rsquo;s own logits, the doubt of a transition and the trust in a step.</p>
     </div>
     <div class="steps" role="group" aria-label="Method steps; select one to highlight it in the figure">
@@ -1024,7 +1050,7 @@
   var reduce = mq('(prefers-reduced-motion: reduce)').matches, coarse = mq('(pointer: coarse)').matches;
   var saveData = !!(navigator.connection && navigator.connection.saveData);
   var V = window.LWM_V || function (p) { return p; };
-  var DUR = {"corrupted":6.1,"crafter_night":7.7,"dreams":5.47,"ensemble":7.73,"fall":6.2,"fall_stage":6.2,"fall_stage_m":6.2,"falls20":5.2,"fourbases":7.57,"learning":3.87,"leaving":7.57,"newroom":8.77,"repaint":6.23,"twenty_forwards":6.6,"veto":25.83,"veto_stage":9.73,"veto_stage_m":9.73,"walkin":10.3,"walkin_stage":10.3,"walkin_stage_m":10.3};                                   /* seconds, measured on the files at build time */
+  var DUR = {"corrupted":6.1,"crafter_night":7.7,"dreams":5.47,"ensemble":7.73,"fall":6.2,"fall_stage":6.2,"fall_stage_m":6.2,"falls20":5.2,"fourbases":7.57,"learning":3.87,"leaving":7.57,"newroom":8.77,"repaint":6.23,"twenty_forwards":6.6,"veto":25.83,"veto_stage":10.57,"veto_stage_m":10.57,"walkin":10.3,"walkin_stage":10.3,"walkin_stage_m":10.3};                                   /* seconds, measured on the files at build time */
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
   function play(v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); return p; }
@@ -1047,13 +1073,19 @@
   /* ================================================================ the first screen: three clips in turn */
   var screenEl = document.getElementById('screen'), stage = document.getElementById('stage');
   var svids = $$('video', stage), chs = $$('.ch', screenEl), fills = chs.map(function (c) { return $('.track i', c); });
-  var countB = $('.count b', stage), nowEl = $('.now', screenEl), pp = $('.pp', screenEl);
+  var nowEl = $('.now', screenEl), pp = $('.pp', screenEl);
   var LABEL = chs.map(function (c) { var k = $('.k', c).cloneNode(true); var n = $('.n', k); if (n) n.remove(); return k.textContent.trim(); });
   var cur = 0, seen = true, userPaused = reduce, blocked = false, sraf = 0, stageStarted = false, posterT = null, posterT0 = 0;
   var POSTER_MS = 6000;
+  var LEAD = 0.6;   /* each clip opens on 0.57 s of its own last picture (the poster); playing, it starts after that hold */
+  function fullyBuffered(v) { var b = v.buffered; return v.duration > 0 && b.length > 0 && b.end(b.length - 1) >= v.duration - 0.25; }
+  function warmAfter(v, next) {                          /* the next chapter downloads once this one is here, not beside it */
+    if (fullyBuffered(v)) { warm(next); return; }
+    var on = function () { if (fullyBuffered(v)) { v.removeEventListener('progress', on); warm(next); } };
+    v.addEventListener('progress', on);
+  }
   function marks(i) {
     chs.forEach(function (c, k) { c.setAttribute('aria-current', String(k === i)); fills[k].style.width = k < i ? '100%' : '0%'; });
-    countB.textContent = String(i + 1);
     stage.setAttribute('href', '#' + svids[i].dataset.clip);
     stage.setAttribute('aria-label', LABEL[i] + ', ' + (i + 1) + ' of 3: watch this clip below');
     var v = $('.v', chs[i]).cloneNode(true), cmp = $('.cmp', v);
@@ -1062,7 +1094,7 @@
   }
   function stageFrame() {
     var v = svids[cur];
-    if (!blocked && v.duration) fills[cur].style.width = (100 * v.currentTime / v.duration) + '%';
+    if (!blocked && v.duration) fills[cur].style.width = Math.max(0, 100 * (v.currentTime - LEAD) / (v.duration - LEAD)) + '%';
     if (blocked) fills[cur].style.width = Math.min(100, 100 * (performance.now() - posterT0) / POSTER_MS) + '%';
     sraf = (!blocked && v.paused) || (blocked && !posterT) ? 0 : requestAnimationFrame(stageFrame);
   }
@@ -1075,7 +1107,7 @@
     to.classList.remove('idle');
     if (!to.getAttribute('poster') && to.dataset.poster) to.poster = to.dataset.poster;
     warm(to);
-    try { to.currentTime = 0; } catch (e) {}
+    try { to.currentTime = blocked || reduce ? 0 : LEAD; } catch (e) {}
     var reveal = function () {
       if (shown || svids[cur] !== to) return; shown = true;
       to.classList.add('on');
@@ -1084,9 +1116,9 @@
     if (wantPlay()) {
       play(to);
       setTimeout(function () {                                            /* after the 0.2 s fade-out: fade in once a frame is drawn */
-        if (to.readyState >= 2 && !to.paused && 'requestVideoFrameCallback' in to) to.requestVideoFrameCallback(reveal);
+        if (!to.paused && 'requestVideoFrameCallback' in to) to.requestVideoFrameCallback(reveal);
         else if (to.readyState >= 2) reveal();
-        else to.addEventListener('loadeddata', reveal, { once: true });
+        else ['loadeddata', 'seeked', 'playing'].forEach(function (ev) { to.addEventListener(ev, reveal, { once: true }); });
         setTimeout(reveal, 1200);
       }, reduce ? 0 : 200);
       kick();
@@ -1095,16 +1127,17 @@
   svids.forEach(function (v, k) {
     v.loop = false;
     v.addEventListener('play', function () { if (k === cur) kick(); });
-    v.addEventListener('playing', function () { stageStarted = true; if (k === cur && !saveData) warm(svids[(k + 1) % svids.length]); });
+    v.addEventListener('playing', function () { stageStarted = true; if (k === cur && !saveData) warmAfter(v, svids[(k + 1) % svids.length]); });
     v.addEventListener('ended', function () {
       if (k !== cur) return;
       fills[k].style.width = '100%';
       if (reduce) return;
       var n = (k + 1) % svids.length, nv = svids[n];
-      if (nv.readyState < 3 && nv.networkState === 2) { v.currentTime = 0; if (wantPlay()) play(v); return; }   /* the next chapter is not here yet: play this one again */
-      go(n);
+      if (!fullyBuffered(nv) && !nv.error && (v._again = (v._again || 0) + 1) <= 2) { warm(nv); v.currentTime = LEAD; if (wantPlay()) play(v); return; }   /* the next chapter cannot play through yet: this one again, at most twice */
+      v._again = 0; go(n);
     });
   });
+  if (!svids[0].paused && svids[0].readyState >= 2) { stageStarted = true; if (!saveData) warmAfter(svids[0], svids[1]); }   /* it started before this script ran */
   chs.forEach(function (c, k) { c.addEventListener('click', function () { if (blocked) { unblock(); } stopPosters(); go(k); if (blocked) startPosters(); }); });
   function setPaused(p) {
     userPaused = p; screenEl.classList.toggle('paused', p); pp.setAttribute('aria-label', p ? 'Play' : 'Pause');
@@ -1122,10 +1155,13 @@
     posterT = setTimeout(function () { posterT = null; if (blocked) { go((cur + 1) % 3); startPosters(); } }, POSTER_MS);
   }
   function stopPosters() { clearTimeout(posterT); posterT = null; }
-  function unblock() { blocked = false; screenEl.classList.remove('blocked'); stopPosters(); userPaused = false; screenEl.classList.remove('paused'); play(svids[cur]); kick(); }
+  function unblock() { blocked = false; screenEl.classList.remove('blocked'); stopPosters(); userPaused = false; screenEl.classList.remove('paused'); pp.setAttribute('aria-label', 'Pause'); play(svids[cur]); kick(); }
   stage.addEventListener('click', function (e) { if (blocked) { e.preventDefault(); unblock(); } });
   if (!reduce) {
-    var first = svids[0], p = play(first);
+    var first = svids[0];
+    var skipLead = function () { if (first.currentTime < LEAD) try { first.currentTime = LEAD; } catch (e) {} };
+    if (first.readyState >= 1) skipLead(); else first.addEventListener('loadedmetadata', skipLead, { once: true });
+    var p = play(first);
     var refuse = function () { if (!first.paused || userPaused || reduce || stageStarted) return; blocked = true; screenEl.classList.add('blocked'); pp.setAttribute('aria-label', 'Play'); startPosters(); };
     if (p && p.catch) p.catch(function (err) { if (err && err.name === 'NotAllowedError') refuse(); });
     first.addEventListener('canplay', function () { setTimeout(refuse, 1500); }, { once: true });
@@ -1151,13 +1187,26 @@
   (function () {
     var bar = $('.topbar'), hero = document.getElementById('top'), strip = $('.secs', bar);
     var links = $$('a[data-sec]', bar), secs = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
-    var last = null, ticking = false;
+    var last = null, ticking = false, ink = $('.ink', bar), where = $('.where', bar), lastW = null, whereT = 0;
+    var heads = $$('#main h3.clip-group'), videosEl = document.getElementById('videos'), resultsEl = document.getElementById('results');
+    function placeInk() {
+      var a = $('a.on', bar);
+      if (a) { ink.style.width = a.offsetWidth + 'px'; ink.style.transform = 'translateX(' + a.offsetLeft + 'px)'; ink.style.opacity = 1; }
+      else ink.style.opacity = 0;
+    }
     function mark() {
       ticking = false;
       bar.classList.toggle('show', hero.getBoundingClientRect().bottom < 80);
       var on = null;
       secs.forEach(function (s) { if (s && s.getBoundingClientRect().top < 140) on = s.id; });
+      if (on && innerHeight + scrollY >= document.documentElement.scrollHeight - 2) on = secs[secs.length - 1].id;
       links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + on); });
+      var w = '';                                         /* the running head: the group of clips you are in */
+      if (on === 'videos' && resultsEl.getBoundingClientRect().top > 140) heads.forEach(function (h) { if (h.getBoundingClientRect().top < 140) w = h.textContent.split(':')[0].trim(); });
+      if (w !== lastW) {
+        lastW = w; where.classList.remove('on'); clearTimeout(whereT);
+        whereT = setTimeout(function () { where.textContent = w; if (w) where.classList.add('on'); }, reduce ? 0 : 160);
+      }
       if (on !== last) {
         last = on;
         var a = $('a.on', bar);
@@ -1166,6 +1215,7 @@
           strip.scrollTo({ left: Math.min(left, strip.scrollWidth - strip.clientWidth), behavior: reduce ? 'auto' : 'smooth' });
         }
       }
+      placeInk();
     }
     function req() { if (!ticking) { ticking = true; requestAnimationFrame(mark); } }
     window.addEventListener('scroll', req, { passive: true }); window.addEventListener('resize', req); mark();
@@ -1214,14 +1264,15 @@
   }
   if (canWall) {
     var nearWall = false, timeUp = false;
-    var tryFetch = function () { if (nearWall && (stageStarted || timeUp)) fetchWall(); };   /* the first screen gets the bandwidth first */
-    setTimeout(function () { timeUp = true; tryFetch(); }, 4000);
+    var stageHere = function () { return svids.every(fullyBuffered); };
+    var tryFetch = function () { if (nearWall && (timeUp || stageHere())) fetchWall(); };   /* the first screen's three clips get the bandwidth first */
+    window.addEventListener('scroll', function onS() { if (scrollY > 40) { timeUp = true; window.removeEventListener('scroll', onS); tryFetch(); } }, { passive: true });
+    svids.forEach(function (v) { v.addEventListener('progress', tryFetch); });
     new IntersectionObserver(function (es) { es.forEach(function (e) { nearWall = e.isIntersecting; tryFetch(); }); }, { rootMargin: '100% 0px' }).observe(wall);
-    svids[0].addEventListener('playing', tryFetch, { once: true });
     new IntersectionObserver(function (es) {
       es.forEach(function (e) {
         wallOn = e.isIntersecting;
-        if (wallOn && !waved) { waved = true; fetchWall(); wave(); }
+        if (wallOn && !waved) { waved = true; fetchWall(); wave(); setTimeout(function () { tiles.forEach(function (t) { if (!t.classList.contains('live')) t.classList.add('nolive'); }); }, 3000); }
         else tiles.forEach(function (t) { if (t._v) { if (wallOn && !(lb && lb.open)) play(t._v); else t._v.pause(); } });
       });
     }, { threshold: 0.2 }).observe(wall);
@@ -1411,6 +1462,10 @@
     }
   } else plain.forEach(function (v) { if (v.dataset.poster) v.poster = V(v.dataset.poster); });
   hooks.pauseAll.push(function () { plain.forEach(function (v) { v.pause(); }); });
+  hooks.resumeAll.push(function () {
+    if (reduce) return;
+    plain.forEach(function (v) { var r = v.getBoundingClientRect(), vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0); if (v.dataset.user !== 'paused' && vis >= 0.35 * r.height) play(v); });
+  });
 
   /* ---------------- links from the wall, the first screen or a shared URL: #clip-x starts the clip, #clip-x-step opens the steps */
   function route(hash, fromClick) {
@@ -1458,7 +1513,7 @@
       segs.forEach(function (s, k) { s.className = k < idx ? 'is-done' : ''; s.firstChild.style.width = k < idx ? '100%' : '0'; });
       play(lv);
     }
-    function open() { back = document.activeElement; pauseEverything(); lb.showModal(); $('.lb__screen', lb).focus({ preventScroll: true }); }
+    function open() { back = document.activeElement; pauseEverything(); document.documentElement.style.overflow = 'hidden'; lb.showModal(); $('.lb__screen', lb).focus({ preventScroll: true }); }
     function all() {
       list = CLIPS; from = null; lb.classList.remove('is-single');
       line.className = 'lb__line is-segs';
@@ -1494,7 +1549,7 @@
       if (e.key === 'ArrowLeft') { e.preventDefault(); if (list) show(idx - 1); else lv.currentTime = Math.max(0, lv.currentTime - 2); }
     });
     lb.addEventListener('close', function () {
-      clearTimeout(idleT); lb.classList.remove('is-idle');
+      clearTimeout(idleT); lb.classList.remove('is-idle'); document.documentElement.style.overflow = '';
       if (from) { from.currentTime = lv.currentTime || 0; from = null; }
       list = null; lv.pause(); lv.removeAttribute('src'); lv.load();
       resumeEverything();
@@ -1542,14 +1597,15 @@
   /* ================================================================ once the first screen is fully here and nothing is waiting: fetch the clips one by one, in reading order */
   if (!saveData && !coarse && !reduce && !window.LWM_PHONE) {
     window.addEventListener('load', function () {
-      var queue = vids.slice(), busy = null;
-      function stageDone() { return svids.every(function (v) { return v.readyState >= 4 || v.error; }); }
+      var queue = vids.slice(), busy = null, taken = 0, moved = false;
+      window.addEventListener('scroll', function onS() { if (scrollY > 40) { moved = true; window.removeEventListener('scroll', onS); } }, { passive: true });
+      function stageDone() { return svids.every(function (v) { return fullyBuffered(v) || v.error; }); }
       function next() {
         if (busy) return;
-        if (!stageDone() || spinning > 0 || (lb && lb.open)) { setTimeout(next, 1500); return; }
+        if (!stageDone() || spinning > 0 || (lb && lb.open) || (taken >= 3 && !moved)) { setTimeout(next, 1500); return; }   /* a reader still on the first screen gets three clips ahead, not all fourteen */
         var v; while ((v = queue.shift()) && v.readyState >= 3) {}
         if (!v) return;
-        busy = v;
+        busy = v; taken++;
         var done = function () { busy = null; clearTimeout(t); v.removeEventListener('canplaythrough', done); v.removeEventListener('error', done); setTimeout(next, 200); };
         var wait = function () { if (busy === v && v.networkState === 2 && v.readyState < 3) t = setTimeout(wait, 5000); else done(); };
         var t = setTimeout(wait, 20000);

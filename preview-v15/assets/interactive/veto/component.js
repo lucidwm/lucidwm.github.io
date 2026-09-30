@@ -51,7 +51,7 @@
     }
     function idxOf(c, st) { return Math.min(st, c.T - 1); }
     function needFull(c, k, front) {
-      if (c.full[k]) return;
+      if (c.full[k] || !(k >= 0)) return;                    /* before the walk's data is here T = 0 and the index is -1: frames/base/0-1.webp, two 404s */
       c.full[k] = 'pending';
       want(base + 'frames/' + c.run + '/' + pad3(k) + '.webp', function (im) { c.full[k] = im; trim(c); if (idxOf(c, s) === k) paint(c); }, front);
     }
@@ -205,7 +205,7 @@
       if (!D) { s = Math.max(0, Math.min(S, Math.round(st))); return; }
       s = Math.max(0, Math.min(S, Math.round(st)));
       ['base', 'ours'].forEach(function (r) { var c = cams[r]; c.step.textContent = s >= c.T ? 'arrived, step ' + c.T : 'step ' + s; c.frame.classList.toggle('is-arrived', s >= c.T); paint(c); });
-      cams.ours.frame.classList.toggle('is-alarm', s >= D.alarm_stretch[0] && s <= D.alarm_stretch[1]);
+      cams.ours.frame.classList.toggle('is-alarm', s >= D.moments.veto && s <= D.alarm_stretch[1]);
       if (G) {
         var x = G.X(s);
         G.cur.setAttribute('x1', x); G.cur.setAttribute('x2', x); G.knob.setAttribute('cx', x); G.fill.setAttribute('x2', x);
