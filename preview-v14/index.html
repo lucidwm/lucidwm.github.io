@@ -4,7 +4,23 @@
 <meta charset="utf-8">
 <meta name="robots" content="noindex, nofollow">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}
+  /* sections bar: appears once the first screen is scrolled past */
+  .topbar { position: fixed; left: 0; right: 0; top: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px);
+    background: var(--bg); border-bottom: 1px solid var(--hair); transform: translateY(-101%); transition: transform var(--t-media) var(--ease); }
+  .topbar.show { transform: none; }
+  .topbar .in { max-width: calc(var(--media) + 40px); margin-inline: auto; padding-inline: 20px; height: 48px; display: flex; align-items: center; gap: var(--s6); }
+  .topbar .brand { flex: none; font-family: var(--serif); font-size: 18px; color: var(--ink); text-decoration: none; letter-spacing: .005em; }
+  .topbar .secs { display: flex; gap: var(--s5); height: 100%; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+  .topbar .secs::-webkit-scrollbar { display: none; }
+  .topbar .secs a { flex: none; display: flex; align-items: center; font-size: 14px; color: var(--muted); text-decoration: none;
+    border-bottom: 2px solid transparent; margin-bottom: -1px; transition: color var(--t-ui), border-color var(--t-ui); }
+  .topbar .secs a:hover { color: var(--ink); }
+  .topbar .secs a.on { color: var(--ink); border-bottom-color: var(--lucid-bright); }
+  section[id], .clip, .clip-group { scroll-margin-top: 64px; }
+  @media (max-width: 640px) { .topbar .in { gap: var(--s5); padding-inline: 16px; } .topbar .brand { font-size: 17px; } .topbar .secs { gap: var(--s4); } }
+  @media (prefers-reduced-motion: reduce) { .topbar { transition: none; } }
+</style>
 <title>Lucid Dreaming for World Models: Learning to Doubt Imagination and Decide by Trust</title>
 <meta name="description" content="LucidWM learns doubt from experience and propagates trust through imagination. Paper (arXiv 2609.37156) and fifteen demonstration videos.">
 <meta name="author" content="Ziqi Wen, Ting Xu, Lianyu Wang, Xian Lin, Yanda Meng, Huazhu Fu, Meng Wang, Ching-Yu Cheng">
@@ -418,62 +434,21 @@
     </div>
   </div>
 </header>
+<nav class="topbar" aria-label="Sections">
+  <div class="in">
+    <a class="brand" href="#top">LucidWM</a>
+    <div class="secs">
+      <a data-sec href="#videos">Videos</a>
+      <a data-sec href="#results">Results</a>
+      <a data-sec href="#idea">Problem</a>
+      <a data-sec href="#method">Method</a>
+      <a data-sec href="#abstract">Abstract</a>
+      <a data-sec href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</nav>
 
 <div class="wrap">
-  <section id="results" class="results">
-    <h2>First on every base, and on all 16 rows</h2>
-    <p class="dek">Evaluated on four base world models against seventeen uncertainty readouts, LucidWM detects environmental changes and signals uncertainty during action-corrupted rollouts. Uncertainty estimation requires no additional parameters or forward passes.</p>
-    <div class="dotkey" aria-hidden="true"><span><i class="o"></i>ours</span><span><i class="c"></i>the other readouts</span><span><i class="w"></i>moves the wrong way</span></div>
-    <div class="panels">
-      <div class="panel">
-        <h3>(A) After observation</h3>
-        <p class="sub">AUROC of the readout, frames of the opened room against familiar ones; 0.5 is chance.</p>
-        <div class="strip" id="strip-a" role="img" aria-label="Table 1 (A): on each of the four bases, ours has the highest AUROC: DreamerV3 0.77, R2-Dreamer 0.83, EMERALD 0.96, OC-STORM 0.82."></div>
-      </div>
-      <div class="panel">
-        <h3>(B) Before decision</h3>
-        <p class="sub">Lift &rho;<sub>1</sub>/&rho;<sub>0</sub>, the readout under corrupted actions over the readout under true ones; 1 is no response. Log scale.</p>
-        <div class="strip" id="strip-b" role="img" aria-label="Table 1 (B): on all sixteen rows, four bases by walker, cheetah, pendulum and Crafter, ours has the highest lift, from 1.15 to 5.62."></div>
-      </div>
-    </div>
-    <p class="note">Table 1 of the paper; means over five seeds.</p>
-    <details class="tbl"><summary>Table 1</summary><p class="note">Under each column its cost relative to the base (+c: heads with c times its parameters; m fwd: m forward passes). Means over five seeds; bold is the best in a row; grey numbers move the wrong way, falling as the model leaves its experience; a dash (&ndash;) is a readout the base cannot provide. Each test uses eleven of the seventeen readouts; reconstruction and one-step error need the arriving frame, so appear in (A) only.</p><div class="scroll"><table><caption>(A) After observation</caption><thead><tr><th scope="col">base</th><th scope="col">task</th><th scope="col">ours<span>1×</span></th><th scope="col">base<span>1×</span></th><th scope="col">entropy<span>1×</span></th><th scope="col">KL<span>1×</span></th><th scope="col">recon.<span>1×</span></th><th scope="col">1-step<span>1×</span></th><th scope="col">RND<span>+.18</span></th><th scope="col">RND-e<span>+.38</span></th><th scope="col">evid.<span>+.12</span></th><th scope="col">latent<span>+.62</span></th><th scope="col">self<span>3 fwd</span></th><th scope="col">deep<span>3×</span></th></tr></thead><tbody><tr><th scope="row">DreamerV3</th><td class="t">maze</td><td class="best">0.77</td><td class="ww">0.24</td><td class="ww">0.31</td><td class="ww">0.24</td><td class="ww">0.06</td><td class="ww">0.10</td><td class="ww">0.39</td><td class="ww">0.27</td><td class="ww">0.48</td><td class="ww">0.33</td><td class="ww">0.21</td><td class="ww">0.21</td></tr><tr class="grp"><th scope="row">R2-Dreamer</th><td class="t">maze</td><td class="best">0.83</td><td class="ww">0.37</td><td class="ww">0.36</td><td>0.52</td><td>&ndash;</td><td>0.50</td><td class="ww">0.45</td><td>0.66</td><td class="ww">0.30</td><td class="ww">0.33</td><td class="ww">0.41</td><td>&ndash;</td></tr><tr class="grp"><th scope="row">EMERALD</th><td class="t">maze</td><td class="best">0.96</td><td>0.72</td><td class="ww">0.40</td><td class="ww">0.27</td><td class="ww">0.05</td><td class="ww">0.11</td><td class="ww">0.22</td><td class="ww">0.20</td><td>0.85</td><td>0.83</td><td class="ww">0.26</td><td>&ndash;</td></tr><tr class="grp"><th scope="row">OC-STORM</th><td class="t">maze</td><td class="best">0.82</td><td>0.75</td><td>0.75</td><td class="ww">0.37</td><td class="ww">0.09</td><td class="ww">0.16</td><td>0.53</td><td class="ww">0.46</td><td>0.57</td><td>0.59</td><td class="ww">0.24</td><td>&ndash;</td></tr></tbody></table>
-<table><caption>(B) Before decision</caption><thead><tr><th scope="col">base</th><th scope="col">task</th><th scope="col">ours<span>1×</span></th><th scope="col">base<span>1×</span></th><th scope="col">entropy<span>1×</span></th><th scope="col">max p.<span>1×</span></th><th scope="col">Mahal.<span>+.04</span></th><th scope="col">kNN<span>+2.4</span></th><th scope="col">RND<span>+.13</span></th><th scope="col">evid.<span>+.10</span></th><th scope="col">latent<span>+.52</span></th><th scope="col">MC drop<span>20 fwd</span></th><th scope="col">Laplace<span>20 fwd</span></th><th scope="col">snap.<span>4 fwd</span></th></tr></thead><tbody><tr><th scope="row">DreamerV3</th><td class="t">walker</td><td class="best">1.30</td><td class="ww">0.85</td><td>1.03</td><td>1.00</td><td>1.06</td><td>1.07</td><td class="ww">0.80</td><td>1.00</td><td>1.04</td><td>1.02</td><td>1.01</td><td class="ww">0.93</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">2.33</td><td class="ww">0.70</td><td>1.14</td><td>1.14</td><td>1.10</td><td class="ww">0.95</td><td class="ww">0.93</td><td>1.00</td><td>1.04</td><td>1.04</td><td class="ww">0.88</td><td class="ww">0.94</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">1.33</td><td>1.00</td><td>1.03</td><td>1.04</td><td>1.08</td><td>1.02</td><td class="ww">0.96</td><td>1.00</td><td class="ww">0.91</td><td>1.07</td><td class="ww">0.84</td><td class="ww">0.95</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">1.49</td><td class="ww">0.84</td><td>1.02</td><td class="ww">0.97</td><td class="ww">0.88</td><td class="ww">0.93</td><td>1.02</td><td>1.00</td><td>1.01</td><td class="ww">0.99</td><td class="ww">0.92</td><td class="ww">0.95</td></tr><tr class="grp"><th scope="row">R2-Dreamer</th><td class="t">walker</td><td class="best">3.11</td><td>1.19</td><td>1.00</td><td>1.01</td><td>2.45</td><td>1.14</td><td>1.36</td><td class="ww">0.99</td><td>1.33</td><td>1.31</td><td>1.37</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">2.76</td><td class="ww">0.99</td><td>1.01</td><td>1.02</td><td>1.17</td><td>1.01</td><td>1.18</td><td>1.00</td><td>1.04</td><td>1.21</td><td>1.01</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">1.53</td><td>1.02</td><td class="ww">0.88</td><td class="ww">0.87</td><td>1.01</td><td class="ww">0.94</td><td>1.11</td><td class="ww">0.99</td><td class="ww">0.96</td><td class="ww">0.96</td><td>1.11</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">1.15</td><td class="ww">0.81</td><td>1.02</td><td>1.00</td><td>1.05</td><td>1.02</td><td>1.05</td><td>1.00</td><td>1.04</td><td>1.00</td><td>1.14</td><td>1.06</td></tr><tr class="grp"><th scope="row">EMERALD</th><td class="t">walker</td><td class="best">3.13</td><td>1.10</td><td>1.55</td><td>1.67</td><td>2.08</td><td>1.42</td><td>1.51</td><td>1.00</td><td>1.53</td><td class="ww">0.05</td><td class="ww">0.06</td><td class="ww">0.16</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">3.67</td><td>1.04</td><td>1.42</td><td>1.57</td><td>2.58</td><td>1.56</td><td>1.42</td><td>1.00</td><td>1.72</td><td class="ww">0.28</td><td class="ww">0.29</td><td class="ww">0.25</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">2.06</td><td>1.03</td><td>1.02</td><td>1.03</td><td>1.39</td><td>1.80</td><td>1.87</td><td>1.00</td><td>1.34</td><td class="ww">0.62</td><td class="ww">0.66</td><td class="ww">0.94</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">1.34</td><td>1.01</td><td>1.16</td><td>1.16</td><td class="ww">0.89</td><td class="ww">0.89</td><td>1.01</td><td>1.00</td><td>1.01</td><td class="ww">0.97</td><td class="ww">0.97</td><td>1.00</td></tr><tr class="grp"><th scope="row">OC-STORM</th><td class="t">walker</td><td class="best">5.62</td><td>1.16</td><td>2.74</td><td>2.14</td><td>1.08</td><td class="ww">0.93</td><td>2.48</td><td>1.00</td><td>4.18</td><td>4.37</td><td>1.08</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">4.30</td><td>1.06</td><td>2.21</td><td>2.08</td><td>1.12</td><td class="ww">0.98</td><td>1.47</td><td>1.03</td><td>2.18</td><td>2.95</td><td class="ww">0.69</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">2.29</td><td>1.03</td><td>1.27</td><td>1.14</td><td class="ww">0.86</td><td class="ww">0.89</td><td class="ww">0.98</td><td>1.00</td><td class="ww">0.86</td><td>1.01</td><td class="ww">0.80</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">2.59</td><td>1.04</td><td>2.08</td><td>1.79</td><td class="ww">0.82</td><td class="ww">0.92</td><td class="ww">0.85</td><td>1.01</td><td>1.35</td><td class="ww">0.61</td><td class="ww">0.55</td><td class="ww">0.80</td></tr></tbody></table></div></details>
-  </section>
-
-  <section id="idea">
-    <h2>Same prediction, different experience</h2>
-    <div class="prose">
-      <p>A state and an action may each be familiar while their combination is unsupported by observed transitions. As a lucid dreamer knows a dream from waking life, LucidWM distinguishes what it predicts from the evidence supporting that prediction.</p>
-    </div>
-    <figure>
-      <div class="plate" style="max-width: 760px"><img src="assets/figs/fig2_mechanism_v55.png" width="2263" height="1575" loading="lazy" alt="A scene and an action never experienced together are predicted as sharply as a pair that was; the Dirichlet strength and doubt read by LucidWM separate the two, while the entropy of the output cannot."></div>
-      <figcaption><b>Same prediction, different experience.</b> Top: a scene and an action never experienced together are predicted as sharply as a pair that was (real frames: at a fall's onset, and 30 steps before it). Bottom: ours reads the Dirichlet behind the input, whose strength and doubt separate the two; the entropy of the output cannot. Bars: each readout over its own alarm line.</figcaption>
-    </figure>
-  </section>
-
-  <section id="method">
-    <h2>Doubt is learned from experience and carried as trust</h2>
-    <p class="prose">The transition-head logits parameterise a Dirichlet over the next-state probabilities. The prediction is the direction of the evidence; the doubt is its amount. A standard world model pins two constants; we unfold both into quantities read from the head&rsquo;s own logits, the doubt of a transition and the trust in a step.</p>
-    <div class="steps" role="group" aria-label="Method steps; select one to highlight it in the figure">
-      <button type="button" class="step" data-step="1" aria-pressed="false"><span class="sec">Sec. 3.1</span><span class="h">Learning doubt from experience</span><span class="d">The categorical transition head is formulated as a Subjective Logic opinion, and the posterior is updated by fusing evidence from observation.</span></button>
-      <button type="button" class="step" data-step="2" aria-pressed="false"><span class="sec">Sec. 3.2</span><span class="h">Carrying trust through imagination</span><span class="d">Trust is incorporated into the standard &lambda;-return, reducing reliance on uncertain imagined continuations.</span></button>
-      <button type="button" class="step" data-step="3" aria-pressed="false"><span class="sec">Sec. 3.3</span><span class="h">Deciding by trust</span><span class="d">A course whose trust collapses is vetoed.</span></button>
-    </div>
-    <figure>
-      <div class="fig3" id="fig3" data-step="0">
-        <div class="plate"><img src="assets/figs/fig3_method_tworow.png" width="2400" height="1340" loading="lazy" alt="Top row: a standard world model with world-model learning, actor-critic learning in imagination, and acting. Bottom row: LucidWM, which learns doubt from experience, carries trust through imagination, and decides by trust."><span class="shade s1"></span><span class="shade s2"></span><span class="shade s3"></span></div>
-      </div>
-      <button type="button" class="reset" id="fig3-reset" hidden>Show the whole figure</button>
-      <div class="fig3-cols">
-        <figure><div class="plate"><img src="assets/figs/fig3_col1.png" width="948" height="1340" loading="lazy" alt="Step 1 of the method figure"></div><p class="cap"><b>1) Learning doubt from experience.</b> Top: standard; bottom: LucidWM.</p></figure>
-        <figure><div class="plate"><img src="assets/figs/fig3_col2.png" width="866" height="1340" loading="lazy" alt="Step 2 of the method figure"></div><p class="cap"><b>2) Carrying trust through imagination.</b> Top: standard; bottom: LucidWM.</p></figure>
-        <figure><div class="plate"><img src="assets/figs/fig3_col3.png" width="588" height="1340" loading="lazy" alt="Step 3 of the method figure"></div><p class="cap"><b>3) Deciding by trust.</b> Top: standard; bottom: LucidWM.</p></figure>
-      </div>
-      <figcaption><b>(a) A standard world model; (b) LucidWM.</b> Changes in grey and blue, doubt in orange. One rule is applied three times: keep the share of a prediction that experience supports, and hand the rest to a fallback, the uniform distribution, the critic, or zero.</figcaption>
-    </figure>
-  </section>
-
   <section id="videos">
     <h2>The model doubting its dreams, and acting on it</h2>
     <div class="legend" aria-label="How to read the videos">
@@ -676,6 +651,60 @@
         </div>
       </figure>
     </div>
+  </section>
+
+  <section id="results" class="results">
+    <h2>First on every base, and on all 16 rows</h2>
+    <p class="dek">Evaluated on four base world models against seventeen uncertainty readouts, LucidWM detects environmental changes and signals uncertainty during action-corrupted rollouts. Uncertainty estimation requires no additional parameters or forward passes.</p>
+    <div class="dotkey" aria-hidden="true"><span><i class="o"></i>ours</span><span><i class="c"></i>the other readouts</span><span><i class="w"></i>moves the wrong way</span></div>
+    <div class="panels">
+      <div class="panel">
+        <h3>(A) After observation</h3>
+        <p class="sub">AUROC of the readout, frames of the opened room against familiar ones; 0.5 is chance.</p>
+        <div class="strip" id="strip-a" role="img" aria-label="Table 1 (A): on each of the four bases, ours has the highest AUROC: DreamerV3 0.77, R2-Dreamer 0.83, EMERALD 0.96, OC-STORM 0.82."></div>
+      </div>
+      <div class="panel">
+        <h3>(B) Before decision</h3>
+        <p class="sub">Lift &rho;<sub>1</sub>/&rho;<sub>0</sub>, the readout under corrupted actions over the readout under true ones; 1 is no response. Log scale.</p>
+        <div class="strip" id="strip-b" role="img" aria-label="Table 1 (B): on all sixteen rows, four bases by walker, cheetah, pendulum and Crafter, ours has the highest lift, from 1.15 to 5.62."></div>
+      </div>
+    </div>
+    <p class="note">Table 1 of the paper; means over five seeds.</p>
+    <details class="tbl"><summary>Table 1</summary><p class="note">Under each column its cost relative to the base (+c: heads with c times its parameters; m fwd: m forward passes). Means over five seeds; bold is the best in a row; grey numbers move the wrong way, falling as the model leaves its experience; a dash (&ndash;) is a readout the base cannot provide. Each test uses eleven of the seventeen readouts; reconstruction and one-step error need the arriving frame, so appear in (A) only.</p><div class="scroll"><table><caption>(A) After observation</caption><thead><tr><th scope="col">base</th><th scope="col">task</th><th scope="col">ours<span>1×</span></th><th scope="col">base<span>1×</span></th><th scope="col">entropy<span>1×</span></th><th scope="col">KL<span>1×</span></th><th scope="col">recon.<span>1×</span></th><th scope="col">1-step<span>1×</span></th><th scope="col">RND<span>+.18</span></th><th scope="col">RND-e<span>+.38</span></th><th scope="col">evid.<span>+.12</span></th><th scope="col">latent<span>+.62</span></th><th scope="col">self<span>3 fwd</span></th><th scope="col">deep<span>3×</span></th></tr></thead><tbody><tr><th scope="row">DreamerV3</th><td class="t">maze</td><td class="best">0.77</td><td class="ww">0.24</td><td class="ww">0.31</td><td class="ww">0.24</td><td class="ww">0.06</td><td class="ww">0.10</td><td class="ww">0.39</td><td class="ww">0.27</td><td class="ww">0.48</td><td class="ww">0.33</td><td class="ww">0.21</td><td class="ww">0.21</td></tr><tr class="grp"><th scope="row">R2-Dreamer</th><td class="t">maze</td><td class="best">0.83</td><td class="ww">0.37</td><td class="ww">0.36</td><td>0.52</td><td>&ndash;</td><td>0.50</td><td class="ww">0.45</td><td>0.66</td><td class="ww">0.30</td><td class="ww">0.33</td><td class="ww">0.41</td><td>&ndash;</td></tr><tr class="grp"><th scope="row">EMERALD</th><td class="t">maze</td><td class="best">0.96</td><td>0.72</td><td class="ww">0.40</td><td class="ww">0.27</td><td class="ww">0.05</td><td class="ww">0.11</td><td class="ww">0.22</td><td class="ww">0.20</td><td>0.85</td><td>0.83</td><td class="ww">0.26</td><td>&ndash;</td></tr><tr class="grp"><th scope="row">OC-STORM</th><td class="t">maze</td><td class="best">0.82</td><td>0.75</td><td>0.75</td><td class="ww">0.37</td><td class="ww">0.09</td><td class="ww">0.16</td><td>0.53</td><td class="ww">0.46</td><td>0.57</td><td>0.59</td><td class="ww">0.24</td><td>&ndash;</td></tr></tbody></table>
+<table><caption>(B) Before decision</caption><thead><tr><th scope="col">base</th><th scope="col">task</th><th scope="col">ours<span>1×</span></th><th scope="col">base<span>1×</span></th><th scope="col">entropy<span>1×</span></th><th scope="col">max p.<span>1×</span></th><th scope="col">Mahal.<span>+.04</span></th><th scope="col">kNN<span>+2.4</span></th><th scope="col">RND<span>+.13</span></th><th scope="col">evid.<span>+.10</span></th><th scope="col">latent<span>+.52</span></th><th scope="col">MC drop<span>20 fwd</span></th><th scope="col">Laplace<span>20 fwd</span></th><th scope="col">snap.<span>4 fwd</span></th></tr></thead><tbody><tr><th scope="row">DreamerV3</th><td class="t">walker</td><td class="best">1.30</td><td class="ww">0.85</td><td>1.03</td><td>1.00</td><td>1.06</td><td>1.07</td><td class="ww">0.80</td><td>1.00</td><td>1.04</td><td>1.02</td><td>1.01</td><td class="ww">0.93</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">2.33</td><td class="ww">0.70</td><td>1.14</td><td>1.14</td><td>1.10</td><td class="ww">0.95</td><td class="ww">0.93</td><td>1.00</td><td>1.04</td><td>1.04</td><td class="ww">0.88</td><td class="ww">0.94</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">1.33</td><td>1.00</td><td>1.03</td><td>1.04</td><td>1.08</td><td>1.02</td><td class="ww">0.96</td><td>1.00</td><td class="ww">0.91</td><td>1.07</td><td class="ww">0.84</td><td class="ww">0.95</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">1.49</td><td class="ww">0.84</td><td>1.02</td><td class="ww">0.97</td><td class="ww">0.88</td><td class="ww">0.93</td><td>1.02</td><td>1.00</td><td>1.01</td><td class="ww">0.99</td><td class="ww">0.92</td><td class="ww">0.95</td></tr><tr class="grp"><th scope="row">R2-Dreamer</th><td class="t">walker</td><td class="best">3.11</td><td>1.19</td><td>1.00</td><td>1.01</td><td>2.45</td><td>1.14</td><td>1.36</td><td class="ww">0.99</td><td>1.33</td><td>1.31</td><td>1.37</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">2.76</td><td class="ww">0.99</td><td>1.01</td><td>1.02</td><td>1.17</td><td>1.01</td><td>1.18</td><td>1.00</td><td>1.04</td><td>1.21</td><td>1.01</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">1.53</td><td>1.02</td><td class="ww">0.88</td><td class="ww">0.87</td><td>1.01</td><td class="ww">0.94</td><td>1.11</td><td class="ww">0.99</td><td class="ww">0.96</td><td class="ww">0.96</td><td>1.11</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">1.15</td><td class="ww">0.81</td><td>1.02</td><td>1.00</td><td>1.05</td><td>1.02</td><td>1.05</td><td>1.00</td><td>1.04</td><td>1.00</td><td>1.14</td><td>1.06</td></tr><tr class="grp"><th scope="row">EMERALD</th><td class="t">walker</td><td class="best">3.13</td><td>1.10</td><td>1.55</td><td>1.67</td><td>2.08</td><td>1.42</td><td>1.51</td><td>1.00</td><td>1.53</td><td class="ww">0.05</td><td class="ww">0.06</td><td class="ww">0.16</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">3.67</td><td>1.04</td><td>1.42</td><td>1.57</td><td>2.58</td><td>1.56</td><td>1.42</td><td>1.00</td><td>1.72</td><td class="ww">0.28</td><td class="ww">0.29</td><td class="ww">0.25</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">2.06</td><td>1.03</td><td>1.02</td><td>1.03</td><td>1.39</td><td>1.80</td><td>1.87</td><td>1.00</td><td>1.34</td><td class="ww">0.62</td><td class="ww">0.66</td><td class="ww">0.94</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">1.34</td><td>1.01</td><td>1.16</td><td>1.16</td><td class="ww">0.89</td><td class="ww">0.89</td><td>1.01</td><td>1.00</td><td>1.01</td><td class="ww">0.97</td><td class="ww">0.97</td><td>1.00</td></tr><tr class="grp"><th scope="row">OC-STORM</th><td class="t">walker</td><td class="best">5.62</td><td>1.16</td><td>2.74</td><td>2.14</td><td>1.08</td><td class="ww">0.93</td><td>2.48</td><td>1.00</td><td>4.18</td><td>4.37</td><td>1.08</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">cheetah</td><td class="best">4.30</td><td>1.06</td><td>2.21</td><td>2.08</td><td>1.12</td><td class="ww">0.98</td><td>1.47</td><td>1.03</td><td>2.18</td><td>2.95</td><td class="ww">0.69</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">pendulum</td><td class="best">2.29</td><td>1.03</td><td>1.27</td><td>1.14</td><td class="ww">0.86</td><td class="ww">0.89</td><td class="ww">0.98</td><td>1.00</td><td class="ww">0.86</td><td>1.01</td><td class="ww">0.80</td><td>&ndash;</td></tr><tr><th scope="row"></th><td class="t">Crafter</td><td class="best">2.59</td><td>1.04</td><td>2.08</td><td>1.79</td><td class="ww">0.82</td><td class="ww">0.92</td><td class="ww">0.85</td><td>1.01</td><td>1.35</td><td class="ww">0.61</td><td class="ww">0.55</td><td class="ww">0.80</td></tr></tbody></table></div></details>
+  </section>
+
+  <section id="idea">
+    <h2>Same prediction, different experience</h2>
+    <div class="prose">
+      <p>A state and an action may each be familiar while their combination is unsupported by observed transitions. As a lucid dreamer knows a dream from waking life, LucidWM distinguishes what it predicts from the evidence supporting that prediction.</p>
+    </div>
+    <figure>
+      <div class="plate" style="max-width: 760px"><img src="assets/figs/fig2_mechanism_v55.png" width="2263" height="1575" loading="lazy" alt="A scene and an action never experienced together are predicted as sharply as a pair that was; the Dirichlet strength and doubt read by LucidWM separate the two, while the entropy of the output cannot."></div>
+      <figcaption><b>Same prediction, different experience.</b> Top: a scene and an action never experienced together are predicted as sharply as a pair that was (real frames: at a fall's onset, and 30 steps before it). Bottom: ours reads the Dirichlet behind the input, whose strength and doubt separate the two; the entropy of the output cannot. Bars: each readout over its own alarm line.</figcaption>
+    </figure>
+  </section>
+
+  <section id="method">
+    <h2>Doubt is learned from experience and carried as trust</h2>
+    <p class="prose">The transition-head logits parameterise a Dirichlet over the next-state probabilities. The prediction is the direction of the evidence; the doubt is its amount. A standard world model pins two constants; we unfold both into quantities read from the head&rsquo;s own logits, the doubt of a transition and the trust in a step.</p>
+    <div class="steps" role="group" aria-label="Method steps; select one to highlight it in the figure">
+      <button type="button" class="step" data-step="1" aria-pressed="false"><span class="sec">Sec. 3.1</span><span class="h">Learning doubt from experience</span><span class="d">The categorical transition head is formulated as a Subjective Logic opinion, and the posterior is updated by fusing evidence from observation.</span></button>
+      <button type="button" class="step" data-step="2" aria-pressed="false"><span class="sec">Sec. 3.2</span><span class="h">Carrying trust through imagination</span><span class="d">Trust is incorporated into the standard &lambda;-return, reducing reliance on uncertain imagined continuations.</span></button>
+      <button type="button" class="step" data-step="3" aria-pressed="false"><span class="sec">Sec. 3.3</span><span class="h">Deciding by trust</span><span class="d">A course whose trust collapses is vetoed.</span></button>
+    </div>
+    <figure>
+      <div class="fig3" id="fig3" data-step="0">
+        <div class="plate"><img src="assets/figs/fig3_method_tworow.png" width="2400" height="1340" loading="lazy" alt="Top row: a standard world model with world-model learning, actor-critic learning in imagination, and acting. Bottom row: LucidWM, which learns doubt from experience, carries trust through imagination, and decides by trust."><span class="shade s1"></span><span class="shade s2"></span><span class="shade s3"></span></div>
+      </div>
+      <button type="button" class="reset" id="fig3-reset" hidden>Show the whole figure</button>
+      <div class="fig3-cols">
+        <figure><div class="plate"><img src="assets/figs/fig3_col1.png" width="948" height="1340" loading="lazy" alt="Step 1 of the method figure"></div><p class="cap"><b>1) Learning doubt from experience.</b> Top: standard; bottom: LucidWM.</p></figure>
+        <figure><div class="plate"><img src="assets/figs/fig3_col2.png" width="866" height="1340" loading="lazy" alt="Step 2 of the method figure"></div><p class="cap"><b>2) Carrying trust through imagination.</b> Top: standard; bottom: LucidWM.</p></figure>
+        <figure><div class="plate"><img src="assets/figs/fig3_col3.png" width="588" height="1340" loading="lazy" alt="Step 3 of the method figure"></div><p class="cap"><b>3) Deciding by trust.</b> Top: standard; bottom: LucidWM.</p></figure>
+      </div>
+      <figcaption><b>(a) A standard world model; (b) LucidWM.</b> Changes in grey and blue, doubt in orange. One rule is applied three times: keep the share of a prediction that experience supports, and hand the rest to a fallback, the uniform distribution, the critic, or zero.</figcaption>
+    </figure>
   </section>
 
   <section id="abstract" class="abstract">
@@ -1124,5 +1153,26 @@
 <script src="assets/interactive/veto/component.js" defer></script>
 <script src="assets/interactive/learning/component.js" defer></script>
 
+<script>
+  (function () {
+    var bar = document.querySelector('.topbar'), hero = document.getElementById('top');
+    if (!bar || !hero) return;
+    var strip = bar.querySelector('.secs'), links = Array.prototype.slice.call(bar.querySelectorAll('a[data-sec]'));
+    var secs = links.map(function (a) { return document.getElementById(a.getAttribute('href').slice(1)); });
+    var last = null;
+    function mark() {
+      bar.classList.toggle('show', hero.getBoundingClientRect().bottom < 0);
+      var cur = null;
+      secs.forEach(function (sec) { if (sec && sec.getBoundingClientRect().top < 120) cur = sec.id; });
+      links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + cur); });
+      if (cur !== last) {
+        last = cur;
+        var on = bar.querySelector('a.on');
+        if (on && strip.scrollWidth > strip.clientWidth) strip.scrollTo({ left: on.offsetLeft - strip.offsetLeft - 16, behavior: 'smooth' });
+      }
+    }
+    window.addEventListener('scroll', mark, { passive: true }); window.addEventListener('resize', mark); mark();
+  })();
+</script>
 </body>
 </html>
