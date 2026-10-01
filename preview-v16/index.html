@@ -532,6 +532,13 @@
   .fig3 .shade { position: absolute; top: 0; bottom: 0; background: var(--bg); opacity: 0; transition: opacity var(--t-ui) var(--ease); pointer-events: none; }
   .fig3 .s1 { left: 0; width: 39.5%; } .fig3 .s2 { left: 39.5%; width: 36%; } .fig3 .s3 { left: 75.5%; width: 24.5%; }
   .fig3[data-step="1"] .shade:not(.s1), .fig3[data-step="2"] .shade:not(.s2), .fig3[data-step="3"] .shade:not(.s3) { opacity: .8; }
+  /* the figure answers too: each of its three columns is a button, as the card above it; the pointer over one lets the other two fall back a little */
+  .fig3 .hit { position: absolute; top: 0; bottom: 0; margin: 0; padding: 0; border: 0; border-radius: 0; background: none; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .fig3 .h1 { left: 0; width: 39.5%; } .fig3 .h2 { left: 39.5%; width: 36%; } .fig3 .h3 { left: 75.5%; width: 24.5%; }
+  .fig3 .hit:focus-visible { outline-offset: -3px; }
+  .fig3:has(.hit:hover) .shade, .fig3:has(.hit:focus-visible) .shade { opacity: .35; }
+  .fig3:has(.h1:hover) .s1, .fig3:has(.h1:focus-visible) .s1, .fig3:has(.h2:hover) .s2, .fig3:has(.h2:focus-visible) .s2,
+  .fig3:has(.h3:hover) .s3, .fig3:has(.h3:focus-visible) .s3 { opacity: 0; }
   .fig3-cols { display: none; }
   .fig3-cols figure + figure { margin-top: var(--s5); }
   .fig3-cols .cap { font-size: var(--fs-5); color: var(--muted); margin-top: var(--s2); line-height: 1.5; }
@@ -591,17 +598,13 @@
   .figlb__body img { display: block; max-width: 100%; max-height: 100%; width: auto; height: auto; background: #fff; }
   @media (max-width: 760px) { .figlb__body { padding: 0 16px 16px; } }
 
-  /* ================================================================ one clip, one screen (desktop): every clip fills what the bar and the row under it
-     leave free; its picture takes the height left after the words and the controls, never wider than the column, centred when narrower.
-     The page comes to rest at each screen's start (the browser's own scroll snapping); a section longer than a screen scrolls freely inside */
+  /* ================================================================ one page, one screen (desktop): the first screen, the wall, every clip, and each section
+     after them fill at least what the bar (and among the clips, the row under it) leave free; the page turns by whole pages (see "turning the
+     page"). A clip's picture takes the height left after the words and the controls, never wider than the column, centred when narrower */
   @media (min-width: 761px) and (min-height: 540px) {
     html { scroll-padding-top: var(--bar-h); }
-    #top, .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex { scroll-snap-align: start; }
-    .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex { scroll-snap-stop: always; }   /* no flick passes over a screen's start */
-    .snap-end { scroll-snap-align: end; }                  /* set by the page on a section taller than the screen: its end, and starts in between */
-    .snap-end, .snap-mid { scroll-snap-stop: always; }     /* a section or a Watch / Step through screen longer than the window: a flick stops inside it too */
-    .snap-mid { scroll-snap-align: start; }
-    footer { scroll-snap-align: end; }                     /* the page's last pixels stay reachable */
+    #results, #idea, #method, #abstract { min-height: calc(100svh - var(--bar-h)); }
+    #bibtex { min-height: calc(100svh - var(--bar-h) - var(--foot-h, 0px)); }   /* BibTeX and the full affiliations under it: the last page */
 
     /* the wall and the key to reading the clips: one screen */
     .intro-screen { margin-top: var(--s9); min-height: calc(100svh - var(--bar-h)); display: flex; flex-direction: column; }
@@ -638,9 +641,43 @@
 
     /* the sections after the videos rest with their heading near the bar. No margins between resting places (a gap before one made
        Chromium's wheel stop short of it): the spacing lives inside the sections */
-    .results { margin-top: 0; padding-top: 64px; }
+    .results { margin-top: 0; padding-top: 64px; padding-bottom: 24px; }
+    /* Results on one page where the window allows: the note on what is compared and the full table sit under (A), beside the taller (B);
+       the table, opened, takes the whole width under both */
+    .results > .c { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); column-gap: var(--s7); align-items: start; }
+    .results > .c > h2, .results > .c > .dek { grid-column: 1 / -1; }
+    .results .panels { display: contents; }
+    .results .panel:first-child { grid-column: 1; grid-row: 3; }
+    .results .panel + .panel { grid-column: 2; grid-row: 3 / span 3; }
+    .results .fair { grid-column: 1; grid-row: 4; margin-top: var(--s4); }
+    .results details.tbl { grid-column: 1; grid-row: 5; }
+    .results details.tbl[open] { grid-column: 1 / -1; grid-row: 6; }
     .idea, .method, .abstract { padding-top: 64px; padding-bottom: 56px; }
-    .cite { padding-top: 64px; }
+    .cite { padding-top: 64px; padding-bottom: 48px; }
+    footer { margin-top: 0; padding-bottom: 32px; }   /* BibTeX and the footer are the last page */
+    /* Method on one page, as Problem is laid out: the heading and the two paragraphs at left; at right the three steps over the figure, aligned
+       with its three columns. The figure takes the height that is left (the page measures the steps and the caption), never wider than its column */
+    .method { display: grid; grid-template-columns: minmax(0, 31fr) minmax(0, 69fr); grid-template-rows: auto 1fr; column-gap: 40px; align-items: start; padding-bottom: 24px; }
+    .method > h2 { grid-column: 1; grid-row: 1; }
+    .method > .prose { grid-column: 1; grid-row: 2; font-size: 16px; line-height: 1.55; }
+    .method .prose p { margin-bottom: 12px; }
+    .m-fig { grid-column: 2; grid-row: 1 / span 2; width: min(100%, max(500px, calc((100svh - var(--m-chrome, 400px)) * 1.791))); }   /* never under 500: a short window gets a longer page */
+    .m-fig .steps { margin: 0 0 8px; }
+    .m-fig .step { padding: 8px 18px 8px 0; }
+    .m-fig .step[aria-pressed="true"] { padding-top: 7px; }
+    .m-fig .step .h { font-size: 19px; }
+    .m-fig .step .d { font-size: 14.5px; line-height: 1.45; }
+    .m-fig > figure { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 24px; align-items: start; }
+    .m-fig > figure > .fig3 { grid-column: 1 / -1; }
+    .m-fig > figure > figcaption { grid-column: 1; grid-row: 2; margin-top: 10px; }
+    .m-fig > figure > .reset { grid-column: 2; grid-row: 2; margin-top: 10px; }
+    /* a short, wide window: the caption beside the figure rather than under it, when that leaves the figure larger (set by script) */
+    .m-fig.side { width: auto; display: grid; grid-template-columns: var(--m-fw) minmax(0, 1fr); column-gap: 28px; }
+    .m-fig.side .steps { grid-column: 1; }
+    .m-fig.side > figure { grid-column: 1 / -1; grid-template-columns: var(--m-fw) minmax(0, 1fr); grid-template-rows: 1fr auto; column-gap: 28px; }
+    .m-fig.side > figure > .fig3 { grid-column: 1; grid-row: 1 / span 2; }
+    .m-fig.side > figure > figcaption { grid-column: 2; grid-row: 1; align-self: end; margin-top: 0; }
+    .m-fig.side > figure > .reset { grid-column: 2; grid-row: 2; justify-self: start; }
   }
   /* a short window: the wall and the key to the clips still make one screen, Base's definition included */
   @media (min-width: 761px) and (min-height: 540px) and (max-height: 860px) {
@@ -650,6 +687,10 @@
     .intro-screen > .read { padding-top: 16px; }
   }
   @media (min-width: 761px) and (min-height: 540px) and (max-height: 760px) {
+    .results, .idea, .method, .abstract, .cite { padding-top: 40px; }
+    .idea, .abstract, .cite { padding-bottom: 24px; }
+    footer { line-height: 1.45; }
+    footer .aff-all li + li { margin-top: 1px; }
     .intro-screen .band { padding-top: 40px; }
     .intro-screen .band-head { padding-bottom: 20px; }
     .intro-screen .band-cap { min-height: 44px; }
@@ -662,10 +703,6 @@
     article.clip { min-height: 0; padding-bottom: 72px; }
     .mbox { flex: none; min-height: 0; container-type: inline-size; }
   }
-  @media (min-width: 761px) and (min-height: 540px) { html { scroll-snap-type: y mandatory; } }
-  @media (pointer: coarse) { html { scroll-snap-type: none; } }                                                     /* a touch screen keeps its own swipe */
-  html.gliding { scroll-snap-type: none; }                 /* a short glide to a resting place: WebKit would stop short of it and wait */
-  html:has(dialog[open]) { scroll-snap-type: none; }       /* an open player or figure: with snapping on, Chromium still moves the page behind on PageDown, the arrows, Home and End */
   @media (max-width: 760px), (max-height: 539px) {                                                                  /* phones and short windows: one column, as before */
     .sh, .sh__r, .mbox { display: contents; }
     #main .group :is(a, button, summary, [tabindex]) { scroll-margin-top: calc(var(--toc-h) + 8px); }               /* Tab stops clear of the row under the bar */
@@ -1185,6 +1222,7 @@
       <p><b>Subjective Logic.</b> <abbr title="Subjective Logic">SL</abbr> extends probability by recording how much evidence a belief rests on, so that not knowing is told apart from knowing that an outcome is unlikely. The transition-head logits parameterise a Dirichlet over the next-state probabilities. The prediction is the direction of the evidence; the doubt is its amount.</p>
       <p>A standard world model pins two constants: its head mixes the same &epsilon; into every prediction, and its return keeps the same share &lambda; of every imagined step. We unfold both into quantities read from the head&rsquo;s own logits, the doubt of a transition and the trust in a step.</p>
     </div>
+    <div class="m-fig">
     <div class="steps" role="group" aria-label="Method steps; select one to highlight it in the figure">
       <button type="button" class="step" data-step="1" aria-pressed="false"><span class="sec">Sec. 3.1</span><span class="h">Learning doubt from experience</span><span class="d">The categorical transition head is formulated as a Subjective Logic opinion, and the posterior is updated by fusing evidence from observation.</span></button>
       <button type="button" class="step" data-step="2" aria-pressed="false"><span class="sec">Sec. 3.2</span><span class="h">Carrying trust through imagination</span><span class="d">Trust is incorporated into the standard &lambda;-return, reducing reliance on uncertain imagined continuations.</span></button>
@@ -1192,7 +1230,7 @@
     </div>
     <figure>
       <div class="fig3" id="fig3" data-step="0">
-        <div class="plate"><img src="assets/figs/fig3_method_tworow.png" width="2400" height="1340" loading="lazy" alt="Top row: a standard world model with world-model learning, actor-critic learning in imagination, and acting. Bottom row: LucidWM, which learns doubt from experience, carries trust through imagination, and decides by trust."><span class="shade s1"></span><span class="shade s2"></span><span class="shade s3"></span></div>
+        <div class="plate"><img src="assets/figs/fig3_method_tworow.png" width="2400" height="1340" loading="lazy" alt="Top row: a standard world model with world-model learning, actor-critic learning in imagination, and acting. Bottom row: LucidWM, which learns doubt from experience, carries trust through imagination, and decides by trust."><span class="shade s1"></span><span class="shade s2"></span><span class="shade s3"></span><button type="button" class="hit h1" data-step="1" aria-pressed="false" aria-label="Learning doubt from experience"></button><button type="button" class="hit h2" data-step="2" aria-pressed="false" aria-label="Carrying trust through imagination"></button><button type="button" class="hit h3" data-step="3" aria-pressed="false" aria-label="Deciding by trust"></button></div>
       </div>
       <button type="button" class="reset" id="fig3-reset" hidden>Show the whole figure</button>
       <div class="fig3-cols">
@@ -1202,6 +1240,7 @@
       </div>
       <figcaption><b>(a) A standard world model; (b) LucidWM.</b> Changes in grey and blue, doubt in orange. One rule is applied three times: keep the share of a prediction that experience supports, and hand the rest to a fallback, the uniform distribution, the critic, or zero.</figcaption>
     </figure>
+    </div>
   </section>
 
   <section id="abstract" class="abstract c" aria-labelledby="abstract-h">
@@ -1277,7 +1316,19 @@
   var DUR = {"corrupted":6.1,"crafter_night":7.7,"dreams":5.47,"ensemble":7.73,"fall":6.2,"fall_stage":6.2,"fall_stage_m":6.2,"falls20":5.2,"fourbases":7.57,"learning":3.87,"leaving":7.57,"newroom":8.77,"repaint":6.23,"twenty_forwards":6.6,"veto":25.83,"veto_stage":10.57,"veto_stage_m":10.57,"walkin":10.3,"walkin_stage":10.3,"walkin_stage_m":10.3};                                   /* seconds, measured on the files at build time */
   function $(s, r) { return (r || document).querySelector(s); }
   function $$(s, r) { return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
-  function play(v) { var p = v.play(); if (p && p.catch) p.catch(function () {}); return p; }
+  /* while the page slides to the next screen, a video that should start waits for it to stop (a decoder starting mid-slide drops frames) */
+  var later = null;
+  function play(v) { if (later) { if (later.indexOf(v) < 0) later.push(v); return; } var p = v.play(); if (p && p.catch) p.catch(function () {}); return p; }
+  function holdPlay(on) {
+    if (on) { later = later || []; return; }
+    var list = later || []; later = null;
+    if (document.querySelector('dialog[open]')) return;
+    list.forEach(function (v) {
+      if (!v.paused || !v.isConnected || v.dataset.user === 'paused' || (v.closest('#stage') && !v.classList.contains('on'))) return;
+      var r = v.getBoundingClientRect(), vis = Math.min(r.bottom, innerHeight) - Math.max(r.top, 0);
+      if (r.height && vis >= 0.35 * r.height) play(v);
+    });
+  }
   function nameOf(v) { var m = (v.getAttribute('src') || v.getAttribute('data-src') || '').match(/([a-z_0-9]+?)(_sd)?\.mp4$/); return m ? m[1] : ''; }
   function warm(v) {
     if (v.dataset.poster && !v.getAttribute('poster')) v.poster = V(v.dataset.poster);
@@ -1649,29 +1700,33 @@
     }
     var veil = document.createElement('div'); veil.className = 'jump-veil'; veil.setAttribute('aria-hidden', 'true'); document.body.appendChild(veil);
     var jumpT = 0, jumpN = 0;
-    function release() { clearTimeout(lockT); cancelAnimationFrame(glideR); lock = null; root.classList.remove('gliding'); req(); }
-    /* the glide, drawn here rather than left to the browser (WebKit's own smooth scroll stopped short of a resting place and waited a second);
-       the page's curve, 360 ms; any wheel, key or touch takes over at once */
-    var glideR = 0;
-    function curve(t) { var u = t; for (var n = 0; n < 8; n++) { var x = 3 * (1 - u) * (1 - u) * u * .2 + 3 * (1 - u) * u * u * .2 + u * u * u - t, dx = 3 * (1 - u) * (1 - u) * .2 + 3 * u * u * .8; if (Math.abs(dx) < 1e-6) break; u = Math.min(1, Math.max(0, u - x / dx)); }
-      return 3 * (1 - u) * (1 - u) * u * .7 + 3 * (1 - u) * u * u + u * u * u; }
-    function glide(y) {
-      var y0 = scrollY, d = y - y0, t0 = performance.now();
-      root.classList.add('gliding'); cancelAnimationFrame(glideR);
-      (function step(now) {
-        var k = Math.min(1, (now - t0) / 360); window.scrollTo({ top: Math.round(y0 + d * curve(k)), behavior: 'auto' });
-        if (k < 1) glideR = requestAnimationFrame(step); else release();
-      })(t0);
+    function release() { clearTimeout(lockT); lock = null; req(); }
+    /* the slide: the window travels to its new place in one stroke, drawn frame by frame (ease in and out, about two thirds of a second
+       for a screen), with nothing after it: no spring, no second correction. It turns the pages, and carries a link that is only a page away */
+    var slideR = 0, sliding = false;
+    function ease(k) { return k < .5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; }
+    function slide(y, done, ms) {
+      cancelAnimationFrame(slideR);
+      var y0 = scrollY, dist = y - y0, t0 = null, T = ms || Math.min(750, 620 + Math.abs(dist) / 25);
+      var finish = function () { sliding = false; root.classList.remove('sliding'); holdPlay(false); if (done) done(); };
+      if (Math.abs(dist) < 1 || reduce) { window.scrollTo(0, y); finish(); return; }
+      sliding = true; root.classList.add('sliding'); holdPlay(true);
+      slideR = requestAnimationFrame(function step(now) {
+        if (t0 === null) t0 = now;
+        var k = Math.min(1, (now - t0) / T); window.scrollTo(0, Math.round(y0 + dist * ease(k)));
+        if (k < 1) slideR = requestAnimationFrame(step); else finish();
+      });
     }
-    ['wheel', 'touchstart', 'keydown'].forEach(function (ev) { window.addEventListener(ev, function () { if (root.classList.contains('gliding')) release(); }, { passive: true }); });
+    function stopSlide() { if (sliding) { cancelAnimationFrame(slideR); sliding = false; root.classList.remove('sliding'); holdPlay(false); } }
     function jump(y, el) {
       if (opened) setPanel(false);
-      nameOff(); clearTimeout(jumpT); clearTimeout(lockT); cancelAnimationFrame(glideR); root.classList.remove('gliding'); var n = ++jumpN;
+      nameOff(); clearTimeout(jumpT); clearTimeout(lockT); stopSlide(); var n = ++jumpN;
       var to = stateAt(y);                                            /* the inks set off now, together with the page; the row under the bar */
       lock = { shown: to.shown, inV: root.classList.contains('toc-on'), c: to.c, s: to.s }; update();   /* comes or goes once the page is white */
       var land = function () { window.scrollTo({ top: y, behavior: 'auto' }); lock.inV = to.inV; update(); if (el) focusAt(el); };
       if (reduce) { veil.classList.remove('on'); land(); release(); return; }
-      if (Math.abs(y - scrollY) < innerHeight && !veil.classList.contains('on')) { glide(y); if (el) focusAt(el); return; }   /* less than a screen away: it glides */
+      var P = paging() ? pages() : null, near = P ? Math.abs(pageAt(P, y) - pageAt(P, scrollY)) <= 1 : Math.abs(y - scrollY) <= innerHeight;
+      if (near && !veil.classList.contains('on')) { slide(y, release); if (el) focusAt(el); return; }   /* the next page, or the one before: it slides */
       var half = Math.round(DIP * 0.45), bd = band.getBoundingClientRect(), dy = y - scrollY;
       veil.classList.toggle('dark', bd.top - dy < innerHeight * .25 && bd.bottom - dy > innerHeight * .5);   /* landing on the dark wall: the veil is the wall's own dark */
       veil.style.transition = 'opacity ' + half + 'ms cubic-bezier(.4, 0, 1, 1)'; veil.classList.add('on');
@@ -1684,6 +1739,100 @@
         lockT = setTimeout(release, DIP - half + 40);
       });
     }
+
+    /* ---------------- turning the page (a desktop with a mouse or a touchpad; a touch screen and a phone scroll as they always have).
+       The page moves by whole screens: first screen, wall, fourteen clips, Results, Problem, Method, Abstract, BibTeX. One gesture turns one
+       page: once it has turned, the rest of that gesture (a touchpad's inertia keeps sending wheel events for a second or two) is let go by,
+       until the wheel has been quiet for 200 ms, or a new push begins (the events grow again), or it turns the other way. A screen taller
+       than the window scrolls freely inside; at its edge the gesture stops, and the next one turns the page */
+    var COARSE = mq('(pointer: coarse)'), QUIET = 200, PUSH = 32, SLACK = 24;
+    function paging() { return SCREENS.matches && !COARSE.matches; }
+    function pages() {
+      var max = root.scrollHeight - innerHeight, list = $$(AREAS), clampY = function (v) { return Math.round(Math.max(0, Math.min(max, v))); };
+      return list.map(function (el, i) {
+        var s = restY(el), e = i === list.length - 1 ? max : clampY(el.getBoundingClientRect().bottom + scrollY - innerHeight);
+        if (e - s <= SLACK && i < list.length - 1) e = s;              /* a few pixels over the window: still one page, it starts at its top */
+        return { el: el, s: s, e: Math.max(s, e) };
+      });
+    }
+    function pageAt(P, y) { var i = 0; P.forEach(function (p, k) { if (p.s <= y + 2) i = k; }); return i; }
+    function stepFrom(P, y, d) {                                       /* where a turn goes from y: another page, or (a long page) its own edge */
+      var i = pageAt(P, y), p = P[i];
+      if (d > 0) return y < p.e - 1 ? { edge: p.e } : i + 1 < P.length ? { to: P[i + 1].s } : null;
+      if (y > p.e + 1) return { to: p.e };                            /* left between two pages (the scrollbar): back to this one's end */
+      return y > p.s + 1 ? { edge: p.s } : i > 0 ? { to: P[i - 1].e } : null;   /* the page before is read upwards from its end */
+    }
+    var held = false, heldD = 0, tailMin = Infinity, tailRate = Infinity, grow = 0, sBig = false, sT = -1e9, sPrev = -1e9, sSum = 0, acc = 0, lastWheel = 0, nIn = 0, tickT = 0, nat = false, natD = 0, natI = 0, goal = 0;
+    function hold(d) { held = true; heldD = d; tailMin = tailRate = Infinity; grow = 0; sBig = false; acc = 0; clearTimeout(tickT); }
+    window.addEventListener('wheel', function (e) {
+      if (!paging() || e.ctrlKey || $('dialog[open]') || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      if (e.target.closest && e.target.closest('.toc-panel')) return;                     /* the list of all clips scrolls on its own */
+      var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1); if (!dy) return;
+      /* the time the event was made, not the time it is handled: a busy moment must not look like a pause in the gesture */
+      var now = e.timeStamp > 0 && e.timeStamp < 1e11 ? e.timeStamp : performance.now(), gap = now - lastWheel, quiet = gap > QUIET, d = dy > 0 ? 1 : -1, a = Math.abs(dy); lastWheel = now;
+      /* how fast the wheel goes: events made within 4 ms of each other are one sample (a browser that falls behind hands several over at once,
+         or one with their deltas summed), its distance taken per frame since the sample before. Along a touchpad's tail it only falls */
+      if (now - sT > 4) {
+        if (held && !sliding && sT > sPrev) tailRate = Math.min(tailRate, sSum * 16.7 / Math.max(16.7, sT - sPrev));   /* the sample just ended */
+        if (!sBig) grow = 0;
+        sPrev = sT; sT = now; sSum = 0; sBig = false;
+      }
+      sSum += a;
+      var rate = sSum * 16.7 / Math.max(16.7, sT - sPrev);
+      if (held) {                                                     /* while the page slides, everything waits: nothing lets go of the hold */
+        if (!sliding && !sBig && tailRate < Infinity && a > Math.max(tailMin * 2.5, tailMin + 12) && rate > Math.max(tailRate * 2.5, tailRate + 12)) { sBig = true; grow++; }
+        var fresh = !sliding && (quiet || d !== heldD || grow >= 2);   /* a new push: two samples running well above the slowest of the tail */
+        if (!fresh) { e.preventDefault(); if (!sliding) tailMin = Math.min(tailMin, a); return; }
+        held = false; acc = 0;
+      }
+      if (sliding || $('.jump-veil.on')) { e.preventDefault(); return; }
+      if (quiet || acc * d < 0) { acc = 0; nIn = 0; }
+      if (quiet || d !== natD) nat = false;
+      var P = pages(), y = scrollY, go = stepFrom(P, y, d);
+      /* inside a long page the browser scrolls, up to the page's edge, where the gesture stops; a gesture that has scrolled inside a page
+         never turns it. Where the scroll is headed counts what the browser has been given but not yet shown */
+      if (nat || (go && go.edge !== undefined)) {
+        var edge = nat ? (d > 0 ? P[natI].e : P[natI].s) : go.edge;
+        goal = (nat ? (d > 0 ? Math.max(goal, y) : Math.min(goal, y)) : y) + dy;
+        if ((edge - goal) * d <= 1) { e.preventDefault(); nat = false; hold(d); slide(edge, null, 160); }
+        else if (!nat) { nat = true; natD = d; natI = pageAt(P, y); }
+        return;
+      }
+      e.preventDefault(); acc += dy; nIn++; clearTimeout(tickT);
+      if (!go) return;
+      if (Math.abs(acc) >= PUSH) { hold(d); slide(go.to); return; }
+      /* a mouse wheel's single click can be small (a few pixels on a Mac): one or two events and then nothing, unlike a touchpad's stream */
+      if (nIn <= 2 && a >= 3.5) tickT = setTimeout(function () {
+        if (held || sliding || nIn > 2 || Math.abs(acc) < 3.5) return;
+        var g = stepFrom(pages(), scrollY, d); if (g && g.to !== undefined) { hold(d); slide(g.to); }
+      }, 110);
+    }, { passive: false });
+    /* the keys: down, PageDown and space turn to the next page (inside a long page, a screen at a time to its end); up, PageUp and shift-space back */
+    window.addEventListener('keydown', function (e) {
+      var d = { ArrowDown: 1, PageDown: 1, ' ': 1, ArrowUp: -1, PageUp: -1 }[e.key], t = e.target;
+      if (!d || !paging() || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || $('dialog[open]')) return;
+      if (t && t.closest && t.closest('input, textarea, select, [contenteditable], [role="slider"], [role="tab"], [role="radiogroup"], .toc-panel' + (e.key === ' ' ? ', button, summary' : ''))) return;
+      if (e.key === ' ' && e.shiftKey) d = -1;
+      e.preventDefault();
+      if (sliding || $('.jump-veil.on')) return;
+      var P = pages(), y = scrollY, go = stepFrom(P, y, d), screenful = innerHeight - 52 - (root.classList.contains('toc-on') ? 36 : 0) - 48;
+      if (!go) return;
+      slide(go.edge !== undefined ? (d > 0 ? Math.min(go.edge, y + screenful) : Math.max(go.edge, y - screenful)) : go.to);
+    });
+    /* a new window size, a zoom, the developer tools: the page stays on the page it was on, as far into it as it was */
+    var here = -1, hereOff = 0, sizing = false, noteT = 0, sizeT = 0;
+    function note() { if (sizing || sliding || !paging()) return; var P = pages(); here = pageAt(P, scrollY); hereOff = Math.max(0, scrollY - P[here].s); }
+    window.addEventListener('scroll', function () { clearTimeout(noteT); noteT = setTimeout(note, 160); }, { passive: true });
+    window.addEventListener('resize', function () {
+      if (here < 0) return;
+      sizing = true; clearTimeout(sizeT);
+      sizeT = setTimeout(function () {
+        sizing = false;
+        if (!paging() || $('dialog[open]')) return;
+        var P = pages(), p = P[Math.min(here, P.length - 1)], y = Math.min(p.e, p.s + hereOff);
+        if (Math.abs(y - scrollY) > 1) window.scrollTo(0, y);
+      }, 220);
+    });
 
     /* ---------------- history: every jump is a step Back undoes; each step keeps the place it was left at: which screen (and how far into it),
        so that Back still finds it after the window has changed size; the pixel position too, for anything else */
@@ -1733,123 +1882,13 @@
       if (y !== null) window.scrollTo({ top: y, behavior: 'auto' });
       else if (el) window.scrollTo({ top: restY(el), behavior: 'auto' });
     }
+    function footH() { root.style.setProperty('--foot-h', $('footer').offsetHeight + 'px'); }   /* BibTeX and the affiliations make the last page */
+    window.addEventListener('resize', footH);
     root.classList.add('no-anim');
-    layout(); settle(); update();
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { layout(); settle(); cur = -2; update(); });
+    footH(); layout(); settle(); update();
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(function () { footH(); layout(); settle(); cur = -2; update(); });
     window.addEventListener('load', function () { settle(); update(); });
     setTimeout(function () { root.classList.remove('no-anim'); }, 400);
-  })();
-
-  /* ================================================================ resting places. A section longer than the screen gets some of its own (its end, and starts
-     where a gap would remain), so that no engine can skip its lower part with one turn of the wheel (WebKit does not keep the spec's rule for it).
-     And when a scroll ends a few pixels off every resting place (Chromium's wheel can stop 10 px short of the wall after a first screen that
-     fills the window), the page finishes the last few pixels */
-  (function () {
-    var root = document.documentElement, SCREENS = mq('(min-width: 761px) and (min-height: 540px)'), COARSE = mq('(pointer: coarse)');
-    var AREAS = '#top, .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex';
-    function rest() {
-      $$('.snap-end, .snap-mid').forEach(function (e) { e.classList.remove('snap-end', 'snap-mid'); });
-      if (!SCREENS.matches) return;
-      var port = innerHeight - (parseFloat(getComputedStyle(root).scrollPaddingTop) || 0);
-      $$(AREAS).forEach(function (a) {
-        if (a.offsetHeight <= (a.id === 'top' ? innerHeight : port) + 1) return;          /* the first screen has no bar over it */
-        var box = a; while (box.children.length === 1) box = box.children[0];
-        var kids = $$(':scope > *', box).filter(function (k) { return k.offsetHeight > 0 && getComputedStyle(k).position !== 'absolute'; });
-        if (!kids.length) return;
-        var top = a.getBoundingClientRect().top, covered = port, last = kids[kids.length - 1];
-        var endView = last.getBoundingClientRect().bottom - top - port;
-        if (endView <= 1) return;                                                        /* taller only by its own bottom margin: nothing is hidden */
-        last.classList.add('snap-end');
-        kids.forEach(function (k) {                                                  /* the last block's own start is its first child (the block itself rests at its end) */
-          if (covered >= endView) return;
-          if (k === last) k = last.firstElementChild && last.firstElementChild.offsetHeight ? last.firstElementChild : null;
-          if (!k) return;
-          var r = k.getBoundingClientRect(), t = r.top - top;
-          if (r.bottom - top > covered && t > 1) { k.classList.add('snap-mid'); covered = t + port; }
-        });
-      });
-    }
-    var restT = 0, later = function () { clearTimeout(restT); restT = setTimeout(rest, 120); };
-    rest(); window.addEventListener('load', rest); window.addEventListener('resize', later);
-    document.addEventListener('toggle', later, true);
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(rest);
-    var lastRest = 0;
-    window.addEventListener('scrollend', function () {
-      var from = lastRest; lastRest = scrollY;
-      if (!SCREENS.matches || COARSE.matches || root.classList.contains('gliding') || $('.jump-veil.on') || $('dialog[open]')) return;
-      var y = scrollY, max = root.scrollHeight - innerHeight, pad = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0, best = null;
-      var near = function (v) { v = Math.max(0, Math.min(max, v)); if (best === null || Math.abs(v - y) < Math.abs(best - y)) best = v; };
-      var areas = $$(AREAS);
-      for (var i = 0; i < areas.length; i++) {
-        var r = areas[i].getBoundingClientRect(), a = r.top + y - pad - (parseFloat(getComputedStyle(areas[i]).scrollMarginTop) || 0), b = Math.max(a, r.bottom + y - innerHeight);
-        if (y >= Math.max(0, a) - 1.5 && y <= Math.min(max, b) + 1.5) return;            /* at rest at a start, or inside a long section */
-        near(a); near(b);
-      }
-      if (y >= max - 1.5) return;
-      var reach = (best - y) * (y - from) > 0 ? Math.max(24, innerHeight / 4) : 24;   /* a move that stopped between two screens is carried on to the next one, never pulled back */
-      if (best !== null && Math.abs(best - y) <= reach) window.scrollTo({ top: best, behavior: reduce ? 'auto' : 'smooth' });
-    });
-  })();
-
-  (function () {
-    var root = document.documentElement, SCREENS = mq('(min-width: 761px) and (min-height: 540px)'), COARSE = mq('(pointer: coarse)');
-    var AREAS = '#top, .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex';
-    function padTop() { return parseFloat(getComputedStyle(root).scrollPaddingTop) || 0; }
-    function startOf(e) { return e.getBoundingClientRect().top + scrollY - padTop() - (parseFloat(getComputedStyle(e).scrollMarginTop) || 0); }
-    /* a paging key, or a notch of a mouse wheel, that moved nothing (Firefox: a rest a fraction of a pixel off its place, or a screen only a
-       little taller than the window, where a notch is pulled back to where it began): the page goes on to the next resting place itself */
-    var KEYS = { PageDown: 1, PageUp: -1, ArrowDown: 1, ArrowUp: -1, ' ': 1 };
-    window.addEventListener('keydown', function (e) {
-      var d = KEYS[e.key], t = e.target;
-      if (!d || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !SCREENS.matches || COARSE.matches || $('dialog[open]')) return;
-      if (t && t.closest && t.closest('input, textarea, select, [contenteditable], [role="slider"], [role="tab"], [role="radiogroup"]' + (e.key === ' ' ? ', button, summary' : ''))) return;
-      if (e.key === ' ' && e.shiftKey) d = -1;
-      onward(d, scrollY);
-    });
-    var notchY = null, notchD = 0, notchT = 0;
-    window.addEventListener('wheel', function (e) {
-      if (e.ctrlKey || !SCREENS.matches || COARSE.matches || $('dialog[open]') || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
-      var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1), d = dy > 0 ? 1 : -1;
-      if (Math.abs(dy) < 50) return;                                   /* a touchpad's small steps are left alone: a light push may well spring back */
-      if (notchY === null || d !== notchD) { notchY = scrollY; notchD = d; }
-      clearTimeout(notchT); notchT = setTimeout(function () { var y0 = notchY; notchY = null; onward(d, y0); }, 60);
-    }, { passive: true });
-    function onward(d, y0) {
-      var t0 = performance.now(), last = scrollY, still = t0;
-      requestAnimationFrame(function watch(now) {
-        if (Math.abs(scrollY - last) > 0.5) { last = scrollY; still = now; }
-        if (now - still < 250 && now - t0 < 1500) { requestAnimationFrame(watch); return; }
-        if (Math.abs(scrollY - y0) >= 2 || root.classList.contains('gliding') || $('.jump-veil.on')) return;
-        var max = root.scrollHeight - innerHeight, next = null;
-        $$(AREAS + ', .snap-mid, .snap-end').forEach(function (el) {
-          var v = el.classList.contains('snap-end') ? el.getBoundingClientRect().bottom + scrollY - innerHeight : startOf(el);
-          v = Math.max(0, Math.min(max, v));
-          if (d * (v - y0) > 2 && (next === null || Math.abs(v - y0) < Math.abs(next - y0))) next = v;
-        });
-        if (next === null && d > 0 && max - y0 > 2) next = max;
-        if (next !== null) window.scrollTo({ top: next, behavior: reduce ? 'auto' : 'smooth' });
-      });
-    }
-    /* a new window size, a zoom, the developer tools: the page stays on the screen it was on (Chromium's own re-snap often took the next one) */
-    var here = null, hereOff = 0, sizing = false, noteT = 0, sizeT = 0;
-    function note() {
-      if (sizing || !SCREENS.matches) return;
-      var y = scrollY; here = null;
-      $$(AREAS).forEach(function (e) { var s = startOf(e); if (s <= y + 2) { here = e; hereOff = Math.max(0, y - s); } });
-    }
-    window.addEventListener('scroll', function () { clearTimeout(noteT); noteT = setTimeout(note, 160); }, { passive: true });
-    window.addEventListener('resize', function () {
-      if (!here) return;
-      sizing = true; clearTimeout(sizeT);
-      sizeT = setTimeout(function () {
-        sizing = false;
-        if (!SCREENS.matches || COARSE.matches || !here || $('dialog[open]')) return;
-        var max = root.scrollHeight - innerHeight, s = startOf(here), room = Math.max(0, here.offsetHeight - (innerHeight - padTop()));
-        var y = Math.max(0, Math.min(max, s + Math.min(hereOff, room)));
-        if (Math.abs(y - scrollY) > 1) window.scrollTo({ top: y, behavior: 'auto' });
-      }, 220);
-    });
-    note();
   })();
 
   /* ================================================================ the wall: pre-cut tiles, posters at once, videos wake in a diagonal wave */
@@ -2206,7 +2245,7 @@
   })();
 
   /* ================================================================ method figure: highlight one step (on a phone, go to its column) */
-  var fig = document.getElementById('fig3'), reset = document.getElementById('fig3-reset'), steps = $$('.step'), narrow = mq('(max-width: 760px)');
+  var fig = document.getElementById('fig3'), reset = document.getElementById('fig3-reset'), steps = $$('.step, .fig3 .hit'), narrow = mq('(max-width: 760px)');   /* the cards and the figure's own three columns */
   function setStep(n) { fig.setAttribute('data-step', n); steps.forEach(function (b) { b.setAttribute('aria-pressed', String(b.getAttribute('data-step') === String(n))); }); reset.hidden = (String(n) === '0'); }
   steps.forEach(function (b) {
     b.addEventListener('click', function () {
@@ -2216,6 +2255,30 @@
     });
   });
   reset.addEventListener('click', function () { setStep(0); });
+  /* Method on one page: the figure gets the window's height less the bar, the section's margins, the steps over it and the caption under it.
+     The steps grow taller as they narrow, so the measure is taken three times. Where the window is short but wide, the caption moves beside
+     the figure if that leaves the figure larger */
+  (function () {
+    var mf = $('.m-fig'), sec = document.getElementById('method'), stepsEl = $('.m-fig .steps'), cap = $('.m-fig > figure > figcaption'), SCREENS = mq('(min-width: 761px) and (min-height: 540px)');
+    var CAP = 250, GAP = 28, AR = 2400 / 1340;
+    function fit() {
+      mf.classList.remove('side'); mf.style.removeProperty('--m-fw');
+      if (!SCREENS.matches) { mf.style.removeProperty('--m-chrome'); return; }
+      var cs = getComputedStyle(sec), pads = parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom), k, w;
+      for (k = 0; k < 3; k++) mf.style.setProperty('--m-chrome', Math.ceil(52 + pads + stepsEl.offsetHeight + 8 + cap.offsetHeight + 12) + 'px');
+      var screen = innerHeight - 52, under = fig.getBoundingClientRect().width, overU = Math.max(0, sec.offsetHeight - screen);
+      mf.classList.add('side'); mf.style.setProperty('--m-fw', '480px');
+      var room = mf.getBoundingClientRect().width - GAP - CAP;
+      if (room > 440) {
+        for (k = 0; k < 3; k++) { w = Math.floor(Math.max(440, Math.min(room, (screen - pads - stepsEl.offsetHeight - 8 - 2) * AR))); mf.style.setProperty('--m-fw', w + 'px'); }
+        var overS = Math.max(0, sec.offsetHeight - screen);
+        if (overS < overU || (overS === overU && w > under + 1)) return;   /* the one that fits the screen; if both do, the larger figure */
+      }
+      mf.classList.remove('side'); mf.style.removeProperty('--m-fw');
+    }
+    var fitT = 0; fit(); window.addEventListener('resize', function () { clearTimeout(fitT); fitT = setTimeout(fit, 60); }); window.addEventListener('load', fit);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(fit);
+  })();
 
   /* ================================================================ bibtex */
   var copyB = document.getElementById('copy-bib'), pre = document.getElementById('bib-text');
@@ -2309,7 +2372,7 @@
   }
   var hostA = document.getElementById('strip-a'), hostB = document.getElementById('strip-b');
   function drawAll() {
-    drawStrip(hostA, T1.A, { labelW: 96, rowH: 38, gapBase: 0, lo: 0, hi: 1, ticks: [0, 0.25, 0.5, 0.75, 1], ref: 0.5, refLabel: 'chance' });
+    drawStrip(hostA, T1.A, { labelW: 96, rowH: 30, gapBase: 0, lo: 0, hi: 1, ticks: [0, 0.25, 0.5, 0.75, 1], ref: 0.5, refLabel: 'chance' });
     drawStrip(hostB, T1.B, { labelW: 158, taskX: 88, rowH: 21, gapBase: 10, lo: 0.04, hi: 6, log: true, ticks: hostB.clientWidth < 460 ? [0.1, 0.5, 1, 2, 4] : [0.1, 0.25, 0.5, 1, 2, 4], ref: 1, refLabel: 'no response' });
   }
   drawAll();
