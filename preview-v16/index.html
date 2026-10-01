@@ -149,12 +149,14 @@
   @keyframes lwm-seg { from { left: 0; } to { left: 72%; } }
   .chapters { position: relative; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) auto; column-gap: clamp(16px, 2vw, 28px); align-items: start;
     max-width: 1280px; padding: 0 4.4% clamp(18px, 2.2vw, 26px);
-    /* each chapter's picture: as wide as its column, unless the window is too short to show the whole screen; then all three shrink alike */
-    --thw: min(100%, max(96px, calc((100svh - 56.25cqw - 156px) * 4 / 3))); }
+    /* each chapter's picture: as wide as its column; a window too short to show the whole screen makes all three lower, never narrower,
+       so picture, track and words keep one left and one right edge */
+    --thh: max(72px, calc(100svh - 56.25cqw - 156px)); }
   .ch { position: relative; min-width: 0; }
   .ch-b { display: block; width: 100%; text-align: left; padding: 0 0 2px; border: 0; background: none; font: inherit; color: inherit; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .ch .th { position: relative; display: block; width: var(--thw); aspect-ratio: 4 / 3; margin-bottom: 8px; overflow: hidden; background: var(--band); }
-  .ch .th img, .ch .th video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ch .th { position: relative; display: block; width: 100%; aspect-ratio: 4 / 3; max-height: var(--thh); margin-bottom: 8px; overflow: hidden; background: var(--band); }
+  .ch .th img, .ch .th video { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block;
+    transform: scale(1.06); }                              /* the alarm frame burnt into the clips stays out: red is the big picture's alone, not "selected" */
   .ch .th img { opacity: .84; transition: opacity 200ms var(--ease); }
   .ch .th video { opacity: 0; transition: opacity 200ms var(--ease); }
   .ch .th.live video { opacity: 1; }
@@ -163,13 +165,13 @@
   .ch .track i { position: absolute; left: 0; top: 0; bottom: 0; width: 0; background: var(--band-ink); }
   .ch .k { display: flex; align-items: baseline; gap: 8px; margin-top: 14px; font: 400 15px/1.35 var(--sans); color: var(--band-muted); transition: color 200ms var(--ease); }
   .ch .k .n { flex: none; font-variant-numeric: tabular-nums; }
-  .ch .v { display: block; margin-top: 4px; font: 400 16px/1.35 var(--serif); color: var(--band-muted); opacity: .5; transition: opacity 300ms cubic-bezier(0, 0, .2, 1); }
+  .ch .v { display: block; margin-top: 4px; font: 400 16px/1.35 var(--serif); color: var(--band-muted); opacity: 0; transition: opacity 300ms cubic-bezier(0, 0, .2, 1); }   /* a chapter's results wait for its turn; their room is kept */
   .ch .v b { font-weight: 500; color: var(--band-ink); }
   .ch .v .cmp { display: block; }
   .ch.is-on .k { color: var(--band-ink); font-weight: 500; }
   .ch:hover .k, .ch.cue .k { color: var(--band-ink); }
   .ch.is-on .v { opacity: 1; }
-  .ch.cue .v { opacity: .85; }                           /* the pointer is on the picture: the chapter a click would bring */
+  .ch.cue .v, .ch:not(.is-on):hover .v { opacity: .85; } /* the pointer on the picture: the chapter a click would bring; or on the chapter itself */
   .ch-b:focus-visible, .pp:focus-visible, .fullclip:focus-visible { outline-color: var(--band-focus); }
   /* the whole clip, in the page's own player; the reader stays on the first screen */
   .fullclip { position: absolute; right: 0; bottom: -2px; padding: 4px 0; font: 400 14px/1.3 var(--sans); color: var(--band-muted);
@@ -198,6 +200,10 @@
   .affil li:hover .full, .affil li:focus-visible .full { opacity: 1; visibility: visible; transition-delay: 0s; }
   @media (hover: none) { .affil li:focus .full { opacity: 1; visibility: visible; transition-delay: 0s; } }
   .affil:hover li:not(:hover) .full { opacity: 0; visibility: hidden; transition-delay: 0s; }
+  /* a short window: the first screen fills it, and the row under it would only ever be passed by between two resting places;
+     the short names move into the words' column, under the buttons (moved by the page; a tall window keeps the row) */
+  .textcol > .credits { width: auto; margin: 0; padding-top: 14px; }
+  .textcol > .credits .affil { gap: 1px 14px; font-size: 13px; line-height: 1.45; }
   .aff-toggle { display: none; font: inherit; font-size: var(--fs-6); color: var(--muted); background: none; border: 0; padding: 6px 0; cursor: pointer; }
   .aff-toggle::before { content: "+ "; } .aff-toggle[aria-expanded="true"]::before { content: "\2212\00a0"; }
 
@@ -224,7 +230,7 @@
 
   /* ---------------- the videos, under the bar: five groups over one line cut into fourteen, a piece per clip.
      Only while the clips are in view; the line is the page's one way of saying "you are here": grey, ink, a 2 px rule */
-  :root { --toc-h: 36px; --toc-seg: #d3d8de; --toc-done: #b9bfc7; }   /* the done grey is the Watch-all line's */
+  :root { --toc-h: 36px; --toc-seg: #d3d8de; }             /* two states only: the clip you are on in ink, every other a hairline */
   #main .clip, #main h3.clip-group { scroll-margin-top: var(--toc-h); }
   #main .duo__pane { scroll-margin-top: calc(64px + var(--toc-h)); }
   [data-jumped]:focus { outline: none; }
@@ -236,13 +242,18 @@
   .toc__groups { list-style: none; margin: 0; padding: 0; display: flex; column-gap: 28px; height: 100%; }
   .toc__g { position: relative; flex: none; height: 100%; }
   .toc__name { position: absolute; left: 0; top: 8px; z-index: 1; display: block; white-space: nowrap; font: 400 13px/18px var(--sans); letter-spacing: .01em;
-    color: var(--faint); text-decoration: none; transition: color var(--t-fast) var(--ease); }
+    color: var(--faint); text-decoration: none; transition: color var(--t-fast) var(--ease), opacity var(--t-fast) var(--ease); }
   .toc__name:hover, .toc__g.is-on .toc__name { color: var(--ink); }
-  .toc__segs { list-style: none; margin: 0; padding: 0; position: absolute; left: 0; top: 0; bottom: 0; display: flex; gap: 3px; }   /* 3 px apart, as the wall's tiles */
-  .toc__segs li { flex: none; width: var(--seg, 48px); }
+  .toc__name.is-hid { opacity: 0; }
+  /* a piece's title, on hover or keyboard focus, is written in the row itself, where its group's name stands; the names it would cover step aside */
+  .toc__label { position: absolute; left: 0; top: 8px; z-index: 3; white-space: nowrap; font: 400 13px/18px var(--sans); letter-spacing: .01em; color: var(--ink);
+    opacity: 0; pointer-events: none; transition: opacity var(--t-fast) var(--ease); }
+  .toc-naming .toc__label { opacity: 1; }
+  .toc__segs { list-style: none; margin: 0; padding: 0; position: absolute; left: 0; right: 0; top: 0; bottom: 0; display: flex; gap: 3px; }   /* 3 px apart, as the wall's tiles */
+  .toc__segs li { flex: 1 1 0; min-width: 0; }               /* the pieces run the whole width of their group: every name stands on its own line */
   .toc__seg { position: relative; display: block; height: 100%; }
+  .toc__segs li + li .toc__seg { z-index: 2; }             /* above the group's name: the second piece on is its own clip under the name too */
   .toc__seg::after { content: ""; position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; background: var(--toc-seg); transition: background-color var(--t-fast) var(--ease); }
-  .toc__seg.is-done::after { background: var(--toc-done); }
   .toc__seg:hover::after { background: var(--muted); }
   .toc__seg:focus-visible { outline: none; }
   .toc__seg:focus-visible::before { content: ""; position: absolute; left: -4px; right: -4px; bottom: -5px; height: 12px; border: 2px solid var(--lucid-bright); border-radius: 2px; }
@@ -260,13 +271,9 @@
     .toc__rule { position: absolute; left: 0; right: 0; bottom: -1px; height: 2px; display: flex; gap: 3px; pointer-events: none; }
     .toc__rule i { flex: 1 1 0; min-width: 0; background: var(--toc-seg); }
     .toc__rule i.g0:not(:first-child) { margin-left: 6px; }
-    .toc__rule i.is-done { background: var(--toc-done); }
   }
   .chev { flex: none; width: 7px; height: 7px; margin-top: -4px; border-right: 1.5px solid var(--muted); border-bottom: 1.5px solid var(--muted); transform: rotate(45deg); }
   .toc-open .chev { margin-top: 3px; transform: rotate(-135deg); }
-  .toc-tip { position: fixed; z-index: 40; pointer-events: none; background: var(--ink); color: var(--bg); font: 400 14px/1.35 var(--sans); padding: 6px 9px; border-radius: var(--r);
-    opacity: 0; white-space: nowrap; transition: opacity 80ms linear; }
-  .toc-tip.on { opacity: 1; }
   .toc-panel { position: fixed; left: 0; right: 0; top: var(--toc-top, calc(var(--bar-h) + 1px)); z-index: 31; max-height: calc(100vh - var(--toc-top, 53px)); max-height: calc(100dvh - var(--toc-top, 53px));
     overflow-y: auto; overscroll-behavior: contain; background: var(--panel); border-bottom: 1px solid var(--hair);
     opacity: 0; visibility: hidden; transition: opacity 120ms var(--ease), visibility 0s linear 120ms; }
@@ -286,6 +293,7 @@
   /* ---------------- going somewhere on the page: the page dips to its own white and comes back at the place; the bar stays above it */
   .jump-veil { position: fixed; inset: 0; z-index: 28; background: var(--bg); opacity: 0; pointer-events: none; }
   .jump-veil.on { opacity: 1; }
+  .jump-veil.dark { background: var(--band); }
 
   /* ================================================================ sections */
   section { position: relative; }
@@ -442,7 +450,7 @@
   .duo.is-fixed .vt { position: absolute; inset: 0; grid-template-columns: minmax(0, 29fr) minmax(0, 33.9fr) minmax(0, 33.9fr);
     grid-template-rows: auto minmax(0, 1fr); grid-template-areas: "map base ours" "chart chart chart"; gap: 22px 16px; }
   .duo.is-fixed .vt__chart { min-height: 0; }
-  .duo.is-fixed .vt__key { gap: 12px; }
+  .duo.is-fixed .vt__key { gap: 12px; flex-wrap: wrap; row-gap: 0; min-width: 0; }   /* a narrow frame: the map's key takes two lines rather than running into Base */
   .ft { display: grid; grid-template-columns: minmax(0, 45fr) minmax(0, 55fr); gap: 32px; align-items: stretch; }
   .ft__view { aspect-ratio: 1 / 1; background: #243a55; }
   .ft__chart { min-height: 300px; }
@@ -589,8 +597,9 @@
   @media (min-width: 761px) and (min-height: 540px) {
     html { scroll-padding-top: var(--bar-h); }
     #top, .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex { scroll-snap-align: start; }
-    article.clip { scroll-snap-stop: always; }
+    .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex { scroll-snap-stop: always; }   /* no flick passes over a screen's start */
     .snap-end { scroll-snap-align: end; }                  /* set by the page on a section taller than the screen: its end, and starts in between */
+    .snap-end, .snap-mid { scroll-snap-stop: always; }     /* a section or a Watch / Step through screen longer than the window: a flick stops inside it too */
     .snap-mid { scroll-snap-align: start; }
     footer { scroll-snap-align: end; }                     /* the page's last pixels stay reachable */
 
@@ -603,27 +612,29 @@
     .group, .group:first-of-type { padding-top: 0; }
     .group > h3.clip-group { position: absolute; width: 1px; height: 1px; margin: 0; padding: 0; border: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
     .clip + .clip { margin-top: 0; }
-    article.clip { min-height: calc(100svh - var(--bar-h) - var(--toc-h)); display: flex; flex-direction: column; padding: 22px 0 10px; }
-    .sh { display: grid; grid-template-columns: minmax(0, 31fr) minmax(0, 69fr); column-gap: 40px; align-items: start; }
-    .sh h4 { font-size: 27px; line-height: 1.16; margin: 0; text-wrap: balance; }
-    .sh .gist { max-width: 78ch; margin: 0; font-size: 16.5px; line-height: 1.5; }
-    .sh details { max-width: 78ch; margin: 1px 0 0; }
-    .sh details p { margin-top: 2px; }
+    article.clip { min-height: calc(100svh - var(--bar-h) - var(--toc-h)); display: flex; flex-direction: column; padding: 24px 0 16px; container-type: inline-size; }
+    /* the words: the title, and under it "+ Details" (open, a note in the margin); the gist beside them, a reading measure wide (about 70 characters) */
+    .sh { display: grid; grid-template-columns: minmax(0, 31fr) minmax(0, 69fr); grid-template-rows: auto 1fr; column-gap: 40px; row-gap: 6px; align-items: start; }
+    .sh__r { display: contents; }
+    .sh h4 { grid-column: 1; grid-row: 1; font-size: 27px; line-height: 1.16; margin: -3px 0 0; text-wrap: balance; }   /* on the gist's first baseline */
+    .sh .gist { grid-column: 2; grid-row: 1 / span 2; max-width: 35em; margin: 0; font-size: 16.5px; line-height: 1.5; }
+    .sh details { grid-column: 1; grid-row: 2; max-width: 30em; margin: 0; }
+    .sh details p { margin-top: 2px; font-size: 15px; line-height: 1.5; }
     .sh details p + p { margin-top: 6px; }
 
-    /* the picture: as wide as the column allows, as tall as the screen allows; narrower than the column, it sits in the middle with its controls */
-    .mbox { flex: 1 1 0; min-height: 240px; margin-top: 14px; container-type: size; }
-    .mbox > .player, .mbox > .duo { margin: 0 auto; width: min(100cqw, calc((100cqh - var(--chrome)) * var(--ar))); }
-    .mbox .ctrl, .mbox .duo__ctrl { margin-top: 4px; min-height: 40px; }
+    /* one frame, one set of lines: the tabs above and the timeline with its buttons below run the whole column on every screen; only the
+       picture follows the screen's height, centred between them. The three Watch / Step through frames never go below 880 px wide (or the
+       column): on a short window such a screen grows past the window and keeps a resting place at its end */
+    .mbox { flex: 1 1 0; min-height: max(240px, calc(min(100cqw, var(--floor, 0px)) / var(--ar) + var(--chrome))); margin-top: 14px; container-type: size; }
+    .mbox > .player, .mbox > .duo { width: auto; margin: 0; }
+    .mbox .plate, .mbox .duo__frame { width: min(100cqw, max(var(--floor, 0px), calc((100cqh - var(--chrome)) * var(--ar)))); margin-inline: auto; }
+    .mbox .ctrl, .mbox .duo__ctrl { margin-top: 6px; min-height: 40px; }
     .mbox .duo { position: relative; }
     .mbox .duo__tabs { margin-bottom: 10px; }
     .mbox .duo__tabs [role="tab"] { padding-bottom: 9px; }
     .mbox .duo__moments { position: absolute; top: 0; right: 0; height: 31px; align-items: flex-start; gap: 0 18px; flex-wrap: nowrap; }   /* the veto's named steps share the tabs' line */
     .mbox .duo__moments button { padding: 3px 0; white-space: nowrap; }
-    @container (max-height: 520px) {                       /* a short screen: the frame is too narrow to share the tabs' line, the named steps go under the controls */
-      .mbox > .duo[data-duo="veto"] { width: min(100cqw, calc((100cqh - var(--chrome) - 30px) * var(--ar))); }
-      .mbox .duo__moments { position: static; height: auto; margin: 2px 0 0; }
-    }
+    @container (max-width: 800px) { .mbox .duo__moments { gap: 0 10px; } .mbox .duo__moments button { font-size: 13px; } }   /* a narrow column: still one line */
 
     /* the sections after the videos rest with their heading near the bar. No margins between resting places (a gap before one made
        Chromium's wheel stop short of it): the spacing lives inside the sections */
@@ -631,9 +642,30 @@
     .idea, .method, .abstract { padding-top: 64px; padding-bottom: 56px; }
     .cite { padding-top: 64px; }
   }
+  /* a short window: the wall and the key to the clips still make one screen, Base's definition included */
+  @media (min-width: 761px) and (min-height: 540px) and (max-height: 860px) {
+    .intro-screen .band { padding-top: 64px; }
+    .intro-screen .band-head { padding-bottom: 28px; }
+    .intro-screen .band-cap { min-height: 64px; }
+    .intro-screen > .read { padding-top: 16px; }
+  }
+  @media (min-width: 761px) and (min-height: 540px) and (max-height: 760px) {
+    .intro-screen .band { padding-top: 40px; }
+    .intro-screen .band-head { padding-bottom: 20px; }
+    .intro-screen .band-cap { min-height: 44px; }
+    .intro-screen > .read { padding-top: 12px; }
+  }
+  /* a portrait window at least 761 px wide (a tablet held upright): a clip is as wide as the column whatever the height, so a screen per clip
+     would leave its lower half white; the clips and the wall simply follow one another, 72 px apart */
+  @media (min-width: 761px) and (min-height: 540px) and (max-aspect-ratio: 4/5) {
+    .intro-screen { min-height: 0; }
+    article.clip { min-height: 0; padding-bottom: 72px; }
+    .mbox { flex: none; min-height: 0; container-type: inline-size; }
+  }
   @media (min-width: 761px) and (min-height: 540px) { html { scroll-snap-type: y mandatory; } }
   @media (pointer: coarse) { html { scroll-snap-type: none; } }                                                     /* a touch screen keeps its own swipe */
   html.gliding { scroll-snap-type: none; }                 /* a short glide to a resting place: WebKit would stop short of it and wait */
+  html:has(dialog[open]) { scroll-snap-type: none; }       /* an open player or figure: with snapping on, Chromium still moves the page behind on PageDown, the arrows, Home and End */
   @media (max-width: 760px), (max-height: 539px) {                                                                  /* phones and short windows: one column, as before */
     .sh, .sh__r, .mbox { display: contents; }
     #main .group :is(a, button, summary, [tabindex]) { scroll-margin-top: calc(var(--toc-h) + 8px); }               /* Tab stops clear of the row under the bar */
@@ -691,8 +723,8 @@
     .affil .short { display: none; }
     .topbar .brand { display: none; }
     .topbar .secs { flex: 1 1 auto; gap: 22px; margin-left: -16px; padding: 0 20px 0 16px;
-      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 28px), transparent);
-              mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 28px), transparent); }
+      -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 40px), transparent calc(100% - 6px));   /* no sliver of the next name by Paper */
+              mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 40px), transparent calc(100% - 6px)); }
     .topbar .paper { margin-left: 12px; height: 28px; line-height: 28px; padding: 0 10px; }
     .topbar .paper::before { display: none; }
     .band { margin-top: var(--s8); padding-top: 48px; }
@@ -742,6 +774,7 @@
     .wall .t { order: var(--o3); }
     .wall .more span { font-size: 18px; }
   }
+  @media (max-width: 360px) { h1 { font-size: min(38px, 11.6vw); } }   /* 320 wide with a scrollbar: the title's second line stays whole */
   @media (pointer: coarse) {
     .ctrl button, .duo__ctrl button, .duo__moments button { min-height: 40px; }
     .bar { height: 26px; }
@@ -749,7 +782,7 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .stage video, .stage video.on, .ch .v, .ch .k, .ch .th img, .ch .th video, .fullclip, .topbar, .topbar .secs .ink, .wall .t .m, .wall .t video.m, .duo__ink, .duo__pane, .duo__stack.is-sizing,
-    .vt__frame, .ft__view, .fig3 .shade, .step, .btn, .affil .full, .toc__bar, .toc__name, .toc__seg::after, .toc__ink, .toc-tip, .toc-panel, .toc-panel__clip { transition: none !important; }
+    .vt__frame, .ft__view, .fig3 .shade, .step, .btn, .affil .full, .toc__bar, .toc__name, .toc__label, .toc__seg::after, .toc__ink, .toc-panel, .toc-panel__clip { transition: none !important; }
     dialog.lb[open] { animation: none; }
     .stage.loading::after, .plate.loading::after, .duo__frame.loading::after, .lb__screen.loading::after { animation: none; left: 36%; }
   }
@@ -887,7 +920,7 @@
         <h4>One veto, half the steps</h4>
         <div class="sh__r"><p class="gist">The veto is one rule: when doubt holds above the alarm line for three frames, trust in the course collapses, the agent turns, and its policy resumes. At step 24 the veto fires; ours reaches the armour at step 190, while base circles the room until step 262 and arrives at step 362. On both altered maps, 143 of 145 vetoes fired inside a changed room, though the agent is never told where the changes are.</p><details><summary>Details</summary><p>The same weights and seed, twice through a dead end whose deep half was repainted after training: left, <em>base</em> ignores its doubt; right, <em>ours</em> acts on trust. Every wall is where it was, so a policy that learned the map walks in as before. Over its whole walk the entropy of base crosses its own line for a single frame, so the same rule would never have fired.</p></details></div>
       </div>
-      <div class="mbox" style="--ar:1.7778;--chrome:90px">
+      <div class="mbox" style="--ar:1.7778;--chrome:90px;--floor:880px">
         <div class="duo" data-duo="veto" data-mode="watch">
           <div class="duo__tabs" role="tablist" aria-label="One veto, half the steps">
             <button type="button" role="tab" id="veto-tab-watch" data-to="watch" aria-selected="true" aria-controls="clip-veto-watch">Watch</button>
@@ -938,7 +971,7 @@
         <h4>Eight steps ahead of the fall</h4>
         <div class="sh__r"><p class="gist">The model reports its doubt eight steps before the fall; the entropy of the same prediction raises no alarm.</p><details><summary>Details</summary><p>The doubt stays above its alarm line throughout the fall.</p></details></div>
       </div>
-      <div class="mbox" style="--ar:1.7778;--chrome:90px">
+      <div class="mbox" style="--ar:1.7778;--chrome:90px;--floor:880px">
         <div class="duo" data-duo="fall" data-mode="watch">
           <div class="duo__tabs" role="tablist" aria-label="Eight steps ahead of the fall">
             <button type="button" role="tab" id="fall-tab-watch" data-to="watch" aria-selected="true" aria-controls="clip-fall-watch">Watch</button>
@@ -1079,7 +1112,7 @@
         <h4>Learning more, doubting less</h4>
         <div class="sh__r"><p class="gist">Averaged over the 24 imagined steps, the doubt falls at every checkpoint, from 0.181 to 0.096, and the error falls 3.9-fold, while the entropy of the same prediction rises from 0.79 to 1.01.</p><details><summary>Details</summary><p>The same future imagined at six checkpoints of one run, from 48k to 180k environment steps. At one step the doubt falls from 0.194 to 0.093 and the error 24.6-fold, though the two are measured independently: the error by comparing pixels, the doubt from the transition's evidence alone. Past the chaotic horizon the doubt stays the highest of the steps shown at every checkpoint.</p></details></div>
       </div>
-      <div class="mbox" style="--ar:1.7778;--chrome:90px">
+      <div class="mbox" style="--ar:1.7778;--chrome:90px;--floor:880px">
         <div class="duo" data-duo="learning" data-mode="watch">
           <div class="duo__tabs" role="tablist" aria-label="Learning more, doubting less">
             <button type="button" role="tab" id="learning-tab-watch" data-to="watch" aria-selected="true" aria-controls="clip-learning-watch">Watch</button>
@@ -1292,8 +1325,8 @@
   function kick() { if (!sraf) sraf = requestAnimationFrame(stageFrame); }
   function wantPlay() { return !reduce && !userPaused && !blocked && seen && !(lb && lb.open) && !document.hidden; }
   function go(i) {
-    var from = svids[cur], to = svids[i], shown = false;
-    if (to !== from) from.classList.remove('on');
+    var from = svids[cur], to = svids[i], shown = false, hold = to !== from && to.readyState < 2;
+    if (!hold) svids.forEach(function (v) { if (v !== to) v.classList.remove('on'); });   /* nothing to show yet: the clip in view stays until the next has a picture */
     cur = i; marks(i);
     to.classList.remove('idle');
     if (!to.getAttribute('poster') && to.dataset.poster) to.poster = to.dataset.poster;
@@ -1301,6 +1334,7 @@
     try { to.currentTime = blocked || reduce ? 0 : LEAD; } catch (e) {}
     var reveal = function () {
       if (shown || svids[cur] !== to) return; shown = true;
+      svids.forEach(function (v) { if (v !== to) v.classList.remove('on'); });
       to.classList.add('on');
       setTimeout(function () { svids.forEach(function (v) { if (v !== svids[cur]) v.pause(); }); }, 420);
     };
@@ -1354,6 +1388,12 @@
   }
   function stopPosters() { clearTimeout(posterT); posterT = null; }
   function unblock() { blocked = false; screenEl.classList.remove('blocked'); stopPosters(); userPaused = false; screenEl.classList.remove('paused'); pp.setAttribute('aria-label', 'Pause'); play(svids[cur]); kick(); }
+  document.addEventListener('keydown', function (e) {             /* and with nothing else holding the keyboard, while the first screen is in view */
+    var d = e.key === 'ArrowRight' ? 1 : e.key === 'ArrowLeft' ? -1 : 0, a = document.activeElement;
+    if (!d || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || e.shiftKey || !seen || $('dialog[open]')) return;
+    if (a && a !== document.body && a !== document.documentElement && !screenEl.contains(a)) return;
+    e.preventDefault(); pick((cur + d + 3) % 3);
+  });
   /* the picture: a click brings the next chapter, never a jump down the page; while the pointer is on it, that chapter lights up */
   var overStage = false;
   function cueNext() { chs.forEach(function (c, k) { c.classList.toggle('cue', overStage && k === (cur + 1) % 3); }); }
@@ -1407,12 +1447,18 @@
   hooks.pauseAll.push(function () { svids[cur].pause(); });
   hooks.resumeAll.push(function () { if (wantPlay()) { play(svids[cur]); kick(); } });
 
-  /* ================================================================ affiliations fold away on a phone */
+  /* ================================================================ affiliations fold away on a phone; on a short window they move under the buttons */
   var affBtn = $('.aff-toggle'), affList = document.getElementById('affil');
   affBtn.addEventListener('click', function () {
     var open = affBtn.getAttribute('aria-expanded') !== 'true';
     affBtn.setAttribute('aria-expanded', String(open)); affList.classList.toggle('open', open);
   });
+  (function () {
+    var credits = $('.credits'), home = credits.parentNode, after = credits.nextSibling, col = $('.textcol'), SHORT = mq('(min-width: 1024px) and (max-height: 860px)');
+    function place() { if (SHORT.matches) { if (credits.parentNode !== col) col.appendChild(credits); } else if (credits.parentNode !== home) home.insertBefore(credits, after); }
+    place();
+    if (SHORT.addEventListener) SHORT.addEventListener('change', place); else if (SHORT.addListener) SHORT.addListener(place);
+  })();
 
   /* ================================================================ where you are, and going somewhere.
      The bar names the sections; among the videos a row under it names the five groups over one line cut into fourteen, a piece per clip.
@@ -1447,7 +1493,7 @@
     });
     h += '</ol><button type="button" class="toc__open" aria-expanded="false" aria-controls="toc-panel"><span class="t"></span><span class="chev" aria-hidden="true"></span></button><span class="toc__rule" aria-hidden="true">';
     clips.forEach(function (c) { h += '<i' + (c.k === 0 ? ' class="g0"' : '') + '></i>'; });
-    h += '</span><i class="toc__ink" aria-hidden="true"></i></div></div><div class="toc-panel" id="toc-panel"><div class="toc-panel__in c">';
+    h += '</span><span class="toc__label" aria-hidden="true"></span><i class="toc__ink" aria-hidden="true"></i></div></div><div class="toc-panel" id="toc-panel"><div class="toc-panel__in c">';
     groups.forEach(function (g) {
       h += '<div class="toc-panel__g"><p class="toc-panel__name" id="tp-' + g.id + '">' + esc(g.name) + '</p><ol aria-labelledby="tp-' + g.id + '">';
       g.clips.forEach(function (c) { h += '<li><a class="toc-panel__clip" href="#' + c.id + '" data-i="' + c.i + '"><span class="pic"><img alt="" width="64" height="48" decoding="async" data-src="assets/videos/wall/' + c.tile + '_sd.jpg"></span><span>' + esc(c.title) + '</span></a></li>'; });
@@ -1457,7 +1503,7 @@
     bar.parentNode.insertBefore(nav, bar.nextSibling);
     var tbar = $('.toc__bar', nav), tin = $('.toc__in', nav), tink = $('.toc__ink', nav), gis = $$('.toc__g', nav), segs = $$('.toc__seg', nav), ticks = $$('.toc__rule i', nav);
     var openBtn = $('.toc__open', nav), panel = $('#toc-panel'), pgs = $$('.toc-panel__g', panel), pclips = $$('.toc-panel__clip', panel);
-    var tip = document.createElement('div'); tip.className = 'toc-tip'; tip.setAttribute('aria-hidden', 'true'); document.body.appendChild(tip);
+    var label = $('.toc__label', nav), names = $$('.toc__name', nav);
 
     /* the pieces are equal, one per clip, and the groups 28 px apart; a group whose name is longer than its pieces takes the name's width */
     function layout() {
@@ -1472,7 +1518,6 @@
         if (!changed) break;
       }
       gis.forEach(function (li, k) { li.style.width = (fixed[k] ? names[k] : groups[k].clips.length * seg + (groups[k].clips.length - 1) * SG) + 'px'; });
-      nav.style.setProperty('--seg', seg + 'px');
     }
 
     /* ---------------- what is current with the page at y (now, or where a jump will land) */
@@ -1499,9 +1544,8 @@
       var g = c < 0 ? -1 : clips[c].g, sChanged = s !== sec;
       cur = c; sec = s;
       links.forEach(function (a) { a.classList.toggle('on', a.getAttribute('href') === '#' + s); });
-      segs.forEach(function (a, i) { a.classList.toggle('is-done', c >= 0 && i < c); if (i === c) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
+      segs.forEach(function (a, i) { if (i === c) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
       if (!nav.contains(document.activeElement)) segs.forEach(function (a, i) { a.tabIndex = i === Math.max(0, c) ? 0 : -1; });
-      ticks.forEach(function (t, i) { t.classList.toggle('is-done', c >= 0 && i < c); });
       gis.forEach(function (li, k) { li.classList.toggle('is-on', k === g); });
       pgs.forEach(function (el, k) { el.classList.toggle('is-on', k === g); });
       pclips.forEach(function (a, i) { if (i === c) a.setAttribute('aria-current', 'location'); else a.removeAttribute('aria-current'); });
@@ -1527,18 +1571,26 @@
     window.addEventListener('scroll', req, { passive: true });
     window.addEventListener('resize', function () { root.classList.add('no-anim'); layout(); cur = -2; update(); requestAnimationFrame(function () { root.classList.remove('no-anim'); }); });
 
-    /* ---------------- a piece's title, on hover or keyboard focus; the fourteen pieces are one stop for the Tab key, the arrows move along them */
-    function showTip(a) {
-      tip.textContent = clips[+a.dataset.i].title; tip.classList.add('on');
-      var r = a.getBoundingClientRect(), w = tip.offsetWidth;
-      tip.style.left = Math.max(16, Math.min(r.left + r.width / 2 - w / 2, innerWidth - 16 - w)) + 'px'; tip.style.top = (tbar.getBoundingClientRect().bottom + 8) + 'px';
+    /* ---------------- a piece's title, on hover or keyboard focus, written in the row where its group's name stands (the names it would cover
+       step aside, and come back when the pointer leaves); the fourteen pieces are one stop for the Tab key, the arrows move along them */
+    function nameOn(a) {
+      if (!WIDE.matches) return;
+      var c = clips[+a.dataset.i]; label.textContent = c.title;
+      var W = tin.clientWidth, w = label.offsetWidth, x = Math.max(0, Math.min(gis[c.g].offsetLeft, W - w));
+      label.style.transform = 'translateX(' + x + 'px)';
+      names.forEach(function (n, k) { var l = gis[k].offsetLeft; n.classList.toggle('is-hid', l + n.offsetWidth > x - 16 && l < x + w + 16); });
+      nav.classList.add('toc-naming');
     }
-    function hideTip() { tip.classList.remove('on'); }
-    nav.addEventListener('pointerover', function (e) { var a = e.target.closest && e.target.closest('.toc__seg'); if (a && e.pointerType === 'mouse') showTip(a); });
-    nav.addEventListener('pointerout', function (e) { var a = e.target.closest && e.target.closest('.toc__seg'); if (a && !(e.relatedTarget && a.contains(e.relatedTarget))) hideTip(); });
-    nav.addEventListener('focusin', function (e) { var a = e.target.closest && e.target.closest('.toc__seg'); if (a) showTip(a); });
-    nav.addEventListener('focusout', hideTip);
-    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideTip(); });
+    function nameOff() { nav.classList.remove('toc-naming'); names.forEach(function (n) { n.classList.remove('is-hid'); }); }
+    function pieceOf(t) {                                            /* a group's name lies over its first piece and goes to the same clip */
+      var a = t.closest && t.closest('.toc__seg, .toc__name'); if (!a) return null;
+      return a.classList.contains('toc__name') ? $('.toc__seg', a.parentNode) : a;
+    }
+    nav.addEventListener('pointerover', function (e) { var a = pieceOf(e.target); if (a && e.pointerType === 'mouse') nameOn(a); });
+    nav.addEventListener('pointerout', function (e) { var a = e.target.closest && e.target.closest('.toc__seg, .toc__name'); if (a && !(e.relatedTarget && a.contains(e.relatedTarget))) nameOff(); });
+    nav.addEventListener('focusin', function (e) { var a = e.target.closest && e.target.closest('.toc__seg'); if (a) nameOn(a); });
+    nav.addEventListener('focusout', nameOff);
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') nameOff(); });
     nav.addEventListener('keydown', function (e) {
       var a = e.target.closest && e.target.closest('.toc__seg'); if (!a) return;
       var i = segs.indexOf(a), j = { ArrowRight: Math.min(segs.length - 1, i + 1), ArrowLeft: Math.max(0, i - 1), Home: 0, End: segs.length - 1 }[e.key];
@@ -1596,7 +1648,7 @@
       try { t.focus({ preventScroll: true }); } catch (e) {}
     }
     var veil = document.createElement('div'); veil.className = 'jump-veil'; veil.setAttribute('aria-hidden', 'true'); document.body.appendChild(veil);
-    var jumpT = 0;
+    var jumpT = 0, jumpN = 0;
     function release() { clearTimeout(lockT); cancelAnimationFrame(glideR); lock = null; root.classList.remove('gliding'); req(); }
     /* the glide, drawn here rather than left to the browser (WebKit's own smooth scroll stopped short of a resting place and waited a second);
        the page's curve, 360 ms; any wheel, key or touch takes over at once */
@@ -1614,24 +1666,41 @@
     ['wheel', 'touchstart', 'keydown'].forEach(function (ev) { window.addEventListener(ev, function () { if (root.classList.contains('gliding')) release(); }, { passive: true }); });
     function jump(y, el) {
       if (opened) setPanel(false);
-      hideTip(); clearTimeout(jumpT); clearTimeout(lockT); cancelAnimationFrame(glideR); root.classList.remove('gliding');
+      nameOff(); clearTimeout(jumpT); clearTimeout(lockT); cancelAnimationFrame(glideR); root.classList.remove('gliding'); var n = ++jumpN;
       var to = stateAt(y);                                            /* the inks set off now, together with the page; the row under the bar */
       lock = { shown: to.shown, inV: root.classList.contains('toc-on'), c: to.c, s: to.s }; update();   /* comes or goes once the page is white */
       var land = function () { window.scrollTo({ top: y, behavior: 'auto' }); lock.inV = to.inV; update(); if (el) focusAt(el); };
       if (reduce) { veil.classList.remove('on'); land(); release(); return; }
       if (Math.abs(y - scrollY) < innerHeight && !veil.classList.contains('on')) { glide(y); if (el) focusAt(el); return; }   /* less than a screen away: it glides */
-      var half = Math.round(DIP * 0.45);
+      var half = Math.round(DIP * 0.45), bd = band.getBoundingClientRect(), dy = y - scrollY;
+      veil.classList.toggle('dark', bd.top - dy < innerHeight * .25 && bd.bottom - dy > innerHeight * .5);   /* landing on the dark wall: the veil is the wall's own dark */
       veil.style.transition = 'opacity ' + half + 'ms cubic-bezier(.4, 0, 1, 1)'; veil.classList.add('on');
-      jumpT = setTimeout(function () {
+      var t0 = performance.now();
+      requestAnimationFrame(function white(now) {                    /* the page moves only under a fully white veil */
+        if (n !== jumpN) return;
+        if (+getComputedStyle(veil).opacity < 0.99 && now - t0 < half + 160) { requestAnimationFrame(white); return; }
         land();
         requestAnimationFrame(function () { veil.style.transition = 'opacity ' + (DIP - half) + 'ms cubic-bezier(0, 0, .2, 1)'; veil.classList.remove('on'); });
         lockT = setTimeout(release, DIP - half + 40);
-      }, half);
+      });
     }
 
-    /* ---------------- history: every jump is a step Back undoes; each step keeps the place it was left at */
+    /* ---------------- history: every jump is a step Back undoes; each step keeps the place it was left at: which screen (and how far into it),
+       so that Back still finds it after the window has changed size; the pixel position too, for anything else */
     try { history.scrollRestoration = 'manual'; } catch (e) {}
-    function keep() { try { var st = history.state && typeof history.state === 'object' ? history.state : {}, n = {}; for (var k in st) n[k] = st[k]; n.y = Math.round(scrollY); history.replaceState(n, ''); } catch (e) {} }
+    function keep() {
+      try {
+        var st = history.state && typeof history.state === 'object' ? history.state : {}, n = {}, y = scrollY; for (var k in st) n[k] = st[k];
+        n.y = Math.round(y); delete n.a; delete n.o;
+        $$(AREAS).forEach(function (e, i) { var s = restY(e); if (s <= y + 2) { n.a = i; n.o = Math.max(0, Math.round(y - s)); } });
+        history.replaceState(n, '');
+      } catch (e) {}
+    }
+    function placeOf(st) {
+      var e = st && typeof st.a === 'number' ? $$(AREAS)[st.a] : null;
+      if (e) return Math.round(Math.max(0, Math.min(root.scrollHeight - innerHeight, restY(e) + (st.o || 0))));
+      return st && typeof st.y === 'number' ? st.y : null;
+    }
     var keepT = 0; window.addEventListener('scroll', function () { clearTimeout(keepT); keepT = setTimeout(keep, 250); }, { passive: true });
     document.addEventListener('click', function (e) {
       if (e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
@@ -1644,8 +1713,8 @@
       jump(y, el);
     });
     window.addEventListener('popstate', function (e) {
-      var s = e.state, el = targetOf(location.hash);
-      jump(s && typeof s.y === 'number' ? s.y : el ? restY(el) : 0, null);
+      var y = placeOf(e.state), el = targetOf(location.hash);
+      jump(y !== null ? y : el ? restY(el) : 0, null);
     });
     /* Home and End: the same, rather than a fast scroll through every screen */
     document.addEventListener('keydown', function (e) {
@@ -1660,8 +1729,8 @@
     ['wheel', 'touchstart', 'keydown', 'pointerdown'].forEach(function (ev) { window.addEventListener(ev, function () { moved = true; }, { passive: true, once: true }); });
     function settle() {
       if (moved) return;
-      var st = history.state, el = targetOf(location.hash);
-      if (st && typeof st.y === 'number') window.scrollTo({ top: st.y, behavior: 'auto' });
+      var y = placeOf(history.state), el = targetOf(location.hash);
+      if (y !== null) window.scrollTo({ top: y, behavior: 'auto' });
       else if (el) window.scrollTo({ top: restY(el), behavior: 'auto' });
     }
     root.classList.add('no-anim');
@@ -1691,8 +1760,10 @@
         var endView = last.getBoundingClientRect().bottom - top - port;
         if (endView <= 1) return;                                                        /* taller only by its own bottom margin: nothing is hidden */
         last.classList.add('snap-end');
-        kids.slice(0, -1).forEach(function (k) {
+        kids.forEach(function (k) {                                                  /* the last block's own start is its first child (the block itself rests at its end) */
           if (covered >= endView) return;
+          if (k === last) k = last.firstElementChild && last.firstElementChild.offsetHeight ? last.firstElementChild : null;
+          if (!k) return;
           var r = k.getBoundingClientRect(), t = r.top - top;
           if (r.bottom - top > covered && t > 1) { k.classList.add('snap-mid'); covered = t + port; }
         });
@@ -1702,7 +1773,9 @@
     rest(); window.addEventListener('load', rest); window.addEventListener('resize', later);
     document.addEventListener('toggle', later, true);
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(rest);
+    var lastRest = 0;
     window.addEventListener('scrollend', function () {
+      var from = lastRest; lastRest = scrollY;
       if (!SCREENS.matches || COARSE.matches || root.classList.contains('gliding') || $('.jump-veil.on') || $('dialog[open]')) return;
       var y = scrollY, max = root.scrollHeight - innerHeight, pad = parseFloat(getComputedStyle(root).scrollPaddingTop) || 0, best = null;
       var near = function (v) { v = Math.max(0, Math.min(max, v)); if (best === null || Math.abs(v - y) < Math.abs(best - y)) best = v; };
@@ -1713,8 +1786,70 @@
         near(a); near(b);
       }
       if (y >= max - 1.5) return;
-      if (best !== null && Math.abs(best - y) <= 24) window.scrollTo({ top: best, behavior: reduce ? 'auto' : 'smooth' });
+      var reach = (best - y) * (y - from) > 0 ? Math.max(24, innerHeight / 4) : 24;   /* a move that stopped between two screens is carried on to the next one, never pulled back */
+      if (best !== null && Math.abs(best - y) <= reach) window.scrollTo({ top: best, behavior: reduce ? 'auto' : 'smooth' });
     });
+  })();
+
+  (function () {
+    var root = document.documentElement, SCREENS = mq('(min-width: 761px) and (min-height: 540px)'), COARSE = mq('(pointer: coarse)');
+    var AREAS = '#top, .intro-screen, article.clip, #results, #idea, #method, #abstract, #bibtex';
+    function padTop() { return parseFloat(getComputedStyle(root).scrollPaddingTop) || 0; }
+    function startOf(e) { return e.getBoundingClientRect().top + scrollY - padTop() - (parseFloat(getComputedStyle(e).scrollMarginTop) || 0); }
+    /* a paging key, or a notch of a mouse wheel, that moved nothing (Firefox: a rest a fraction of a pixel off its place, or a screen only a
+       little taller than the window, where a notch is pulled back to where it began): the page goes on to the next resting place itself */
+    var KEYS = { PageDown: 1, PageUp: -1, ArrowDown: 1, ArrowUp: -1, ' ': 1 };
+    window.addEventListener('keydown', function (e) {
+      var d = KEYS[e.key], t = e.target;
+      if (!d || e.defaultPrevented || e.altKey || e.ctrlKey || e.metaKey || !SCREENS.matches || COARSE.matches || $('dialog[open]')) return;
+      if (t && t.closest && t.closest('input, textarea, select, [contenteditable], [role="slider"], [role="tab"], [role="radiogroup"]' + (e.key === ' ' ? ', button, summary' : ''))) return;
+      if (e.key === ' ' && e.shiftKey) d = -1;
+      onward(d, scrollY);
+    });
+    var notchY = null, notchD = 0, notchT = 0;
+    window.addEventListener('wheel', function (e) {
+      if (e.ctrlKey || !SCREENS.matches || COARSE.matches || $('dialog[open]') || Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+      var dy = e.deltaY * (e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? innerHeight : 1), d = dy > 0 ? 1 : -1;
+      if (Math.abs(dy) < 50) return;                                   /* a touchpad's small steps are left alone: a light push may well spring back */
+      if (notchY === null || d !== notchD) { notchY = scrollY; notchD = d; }
+      clearTimeout(notchT); notchT = setTimeout(function () { var y0 = notchY; notchY = null; onward(d, y0); }, 60);
+    }, { passive: true });
+    function onward(d, y0) {
+      var t0 = performance.now(), last = scrollY, still = t0;
+      requestAnimationFrame(function watch(now) {
+        if (Math.abs(scrollY - last) > 0.5) { last = scrollY; still = now; }
+        if (now - still < 250 && now - t0 < 1500) { requestAnimationFrame(watch); return; }
+        if (Math.abs(scrollY - y0) >= 2 || root.classList.contains('gliding') || $('.jump-veil.on')) return;
+        var max = root.scrollHeight - innerHeight, next = null;
+        $$(AREAS + ', .snap-mid, .snap-end').forEach(function (el) {
+          var v = el.classList.contains('snap-end') ? el.getBoundingClientRect().bottom + scrollY - innerHeight : startOf(el);
+          v = Math.max(0, Math.min(max, v));
+          if (d * (v - y0) > 2 && (next === null || Math.abs(v - y0) < Math.abs(next - y0))) next = v;
+        });
+        if (next === null && d > 0 && max - y0 > 2) next = max;
+        if (next !== null) window.scrollTo({ top: next, behavior: reduce ? 'auto' : 'smooth' });
+      });
+    }
+    /* a new window size, a zoom, the developer tools: the page stays on the screen it was on (Chromium's own re-snap often took the next one) */
+    var here = null, hereOff = 0, sizing = false, noteT = 0, sizeT = 0;
+    function note() {
+      if (sizing || !SCREENS.matches) return;
+      var y = scrollY; here = null;
+      $$(AREAS).forEach(function (e) { var s = startOf(e); if (s <= y + 2) { here = e; hereOff = Math.max(0, y - s); } });
+    }
+    window.addEventListener('scroll', function () { clearTimeout(noteT); noteT = setTimeout(note, 160); }, { passive: true });
+    window.addEventListener('resize', function () {
+      if (!here) return;
+      sizing = true; clearTimeout(sizeT);
+      sizeT = setTimeout(function () {
+        sizing = false;
+        if (!SCREENS.matches || COARSE.matches || !here || $('dialog[open]')) return;
+        var max = root.scrollHeight - innerHeight, s = startOf(here), room = Math.max(0, here.offsetHeight - (innerHeight - padTop()));
+        var y = Math.max(0, Math.min(max, s + Math.min(hereOff, room)));
+        if (Math.abs(y - scrollY) > 1) window.scrollTo({ top: y, behavior: 'auto' });
+      }, 220);
+    });
+    note();
   })();
 
   /* ================================================================ the wall: pre-cut tiles, posters at once, videos wake in a diagonal wave */
@@ -2108,7 +2243,7 @@
   /* ================================================================ once the first screen is fully here and nothing is waiting: fetch the clips one by one, in reading order */
   if (!saveData && !coarse && !reduce && !window.LWM_PHONE) {
     window.addEventListener('load', function () {
-      var queue = vids.slice(), busy = null, taken = 0, moved = false;
+      var queue = vids.slice().sort(function (a, b) { return a.compareDocumentPosition(b) & 2 ? 1 : -1; }), busy = null, taken = 0, moved = false;
       window.addEventListener('scroll', function onS() { if (scrollY > 40) { moved = true; window.removeEventListener('scroll', onS); } }, { passive: true });
       function stageDone() { return svids.every(function (v) { return fullyBuffered(v) || v.error; }); }
       function next() {
