@@ -1,0 +1,11 @@
+/* v16 prototype (agent snap): direct jumps */
+html.jump-on { scroll-behavior: auto !important; }
+.jump-focus:focus { outline: none; }
+.jump-veil { position: fixed; inset: 0; z-index: 29; background: var(--bg); opacity: 0; pointer-events: none; }
+.jump-veil.on { opacity: 1; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: var(--jd, 240ms); animation-timing-function: cubic-bezier(.2, .7, .2, 1); }
+html.jump-on .topbar { view-transition-name: lwm-bar; }
+::view-transition-group(lwm-bar) { animation: none; }
+::view-transition-old(lwm-bar) { display: none; }
+::view-transition-new(lwm-bar) { animation: none; }
+@media (prefers-reduced-motion: reduce) { ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; } }
