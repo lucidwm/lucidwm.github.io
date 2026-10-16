@@ -202,10 +202,8 @@
   .affil:hover li:not(:hover) .full { opacity: 0; visibility: hidden; transition-delay: 0s; }
   /* a short window: the first screen fills it, and the row under it would only ever be passed by between two resting places;
      the short names move into the words' column, under the buttons (moved by the page; a tall window keeps the row) */
-  .textcol > .credits { width: auto; margin: 0; padding-top: 14px; }
-  .textcol > .credits .affil { gap: 1px 14px; font-size: 13px; line-height: 1.45; }
-  .aff-toggle { display: none; font: inherit; font-size: var(--fs-6); color: var(--muted); background: none; border: 0; padding: 6px 0; cursor: pointer; }
-  .aff-toggle::before { content: "+ "; } .aff-toggle[aria-expanded="true"]::before { content: "\2212\00a0"; }
+  .by .credits { width: auto; margin: 0; padding: 8px 0 0; border-top: 0; }
+  .by .credits .affil { gap: 1px 14px; font-size: 13.5px; line-height: 1.45; }
 
   /* ================================================================ the sections bar: the name, then the sections and Paper on the right */
   .topbar { position: fixed; left: 0; right: 0; top: 0; z-index: 30; padding-top: env(safe-area-inset-top, 0px); background: var(--bg);
@@ -752,12 +750,6 @@
     .pp { width: 36px; height: 36px; margin-top: -2px; }
     .btn .soon { display: none; }
     .c { width: calc(100% - 32px); }
-    .credits { padding-top: 12px; }
-    .js .affil { display: none; }
-    .js .affil.open { display: grid; gap: var(--s2); margin-top: var(--s2); }
-    .js .aff-toggle { display: inline-block; }
-    .affil .full { position: static; display: inline; width: auto; max-width: none; padding: 0; background: none; color: var(--muted); opacity: 1; visibility: visible; }
-    .affil .short { display: none; }
     .topbar .brand { display: none; }
     .topbar .secs { flex: 1 1 auto; gap: 22px; margin-left: -16px; padding: 0 20px 0 16px;
       -webkit-mask-image: linear-gradient(to right, transparent 0, #000 16px, #000 calc(100% - 40px), transparent calc(100% - 6px));   /* no sliver of the next name by Paper */
@@ -841,6 +833,17 @@
     <p class="thesis">Existing uncertainty estimates for world models are read from the prediction, and therefore stay confident on exactly what the model has never experienced. <span class="name">LucidWM</span> learns doubt from experience and propagates trust through imagination.</p>
     <div class="by">
       <p class="names"><span>Ziqi Wen<sup>1,2</sup></span><span>Ting Xu<sup>1,2</sup></span><span>Lianyu Wang<sup>1,2</sup></span><span>Xian Lin<sup>1,2</sup></span><span>Yanda Meng<sup>3</sup></span><span>Huazhu Fu<sup>4</sup></span><span>Meng Wang<sup>1,2,&#x2709;&#xFE0E;</sup></span><span>Ching-Yu Cheng<sup>1,2,5,6</sup></span></p>
+      <div class="credits">
+        <ul class="affil" id="affil" aria-label="Affiliations">
+          <li tabindex="0"><sup>1</sup><span class="short">Centre for Innovation and Precision Eye Health, NUS</span><span class="full">Centre for Innovation and Precision Eye Health, Yong Loo Lin School of Medicine, National University of Singapore</span></li>
+          <li tabindex="0"><sup>2</sup><span class="short">Department of Ophthalmology, NUS</span><span class="full">Department of Ophthalmology, Yong Loo Lin School of Medicine, National University of Singapore</span></li>
+          <li tabindex="0"><sup>3</sup><span class="short">KAUST</span><span class="full">Bioengineering Program, Biomedical Sciences Division (BioMed), King Abdullah University of Science and Technology (KAUST)</span></li>
+          <li tabindex="0"><sup>4</sup><span class="short">IAIC, A*STAR</span><span class="full">Institute of Advanced Intelligence and Computing (IAIC), Agency for Science, Technology and Research (A*STAR)</span></li>
+          <li tabindex="0"><sup>5</sup><span class="short">Singapore Eye Research Institute</span><span class="full">Singapore Eye Research Institute, Singapore National Eye Centre</span></li>
+          <li tabindex="0"><sup>6</sup><span class="short">Duke-NUS Medical School</span><span class="full">Ophthalmology &amp; Visual Sciences Academic Clinical Program (EYE ACP), Duke-NUS Medical School</span></li>
+          <li><sup>&#x2709;&#xFE0E;</sup>Corresponding author</li>
+        </ul>
+      </div>
     </div>
     <div class="act">
       <nav class="links" aria-label="Paper links">
@@ -883,18 +886,6 @@
     </div>
   </div>
 </header>
-<div class="credits c">
-  <button type="button" class="aff-toggle" aria-expanded="false" aria-controls="affil">Affiliations</button>
-  <ul class="affil" id="affil" aria-label="Affiliations">
-    <li tabindex="0"><sup>1</sup><span class="short">Centre for Innovation and Precision Eye Health, NUS</span><span class="full">Centre for Innovation and Precision Eye Health, Yong Loo Lin School of Medicine, National University of Singapore</span></li>
-    <li tabindex="0"><sup>2</sup><span class="short">Department of Ophthalmology, NUS</span><span class="full">Department of Ophthalmology, Yong Loo Lin School of Medicine, National University of Singapore</span></li>
-    <li tabindex="0"><sup>3</sup><span class="short">KAUST</span><span class="full">Bioengineering Program, Biomedical Sciences Division (BioMed), King Abdullah University of Science and Technology (KAUST)</span></li>
-    <li tabindex="0"><sup>4</sup><span class="short">IAIC, A*STAR</span><span class="full">Institute of Advanced Intelligence and Computing (IAIC), Agency for Science, Technology and Research (A*STAR)</span></li>
-    <li tabindex="0"><sup>5</sup><span class="short">Singapore Eye Research Institute</span><span class="full">Singapore Eye Research Institute, Singapore National Eye Centre</span></li>
-    <li tabindex="0"><sup>6</sup><span class="short">Duke-NUS Medical School</span><span class="full">Ophthalmology &amp; Visual Sciences Academic Clinical Program (EYE ACP), Duke-NUS Medical School</span></li>
-    <li><sup>&#x2709;&#xFE0E;</sup>Corresponding author</li>
-  </ul>
-</div>
 
 <nav class="topbar" aria-label="Sections">
   <div class="in c">
@@ -1498,18 +1489,7 @@
   hooks.pauseAll.push(function () { svids[cur].pause(); });
   hooks.resumeAll.push(function () { if (wantPlay()) { play(svids[cur]); kick(); } });
 
-  /* ================================================================ affiliations fold away on a phone; on a short window they move under the buttons */
-  var affBtn = $('.aff-toggle'), affList = document.getElementById('affil');
-  affBtn.addEventListener('click', function () {
-    var open = affBtn.getAttribute('aria-expanded') !== 'true';
-    affBtn.setAttribute('aria-expanded', String(open)); affList.classList.toggle('open', open);
-  });
-  (function () {
-    var credits = $('.credits'), home = credits.parentNode, after = credits.nextSibling, col = $('.textcol'), SHORT = mq('(min-width: 1024px) and (max-height: 860px)');
-    function place() { if (SHORT.matches) { if (credits.parentNode !== col) col.appendChild(credits); } else if (credits.parentNode !== home) home.insertBefore(credits, after); }
-    place();
-    if (SHORT.addEventListener) SHORT.addEventListener('change', place); else if (SHORT.addListener) SHORT.addListener(place);
-  })();
+  /* ================================================================ affiliations: short names under the authors, the full name on hover or focus */
 
   /* ================================================================ where you are, and going somewhere.
      The bar names the sections; among the videos a row under it names the five groups over one line cut into fourteen, a piece per clip.
